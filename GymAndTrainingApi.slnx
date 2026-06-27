@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Элементы решения/">
+    <File Path=".gitignore" />
+  </Folder>
   <Project Path="Gym.Application/Gym.Application.csproj">
     <BuildDependency Project="Gym.Domain/Gym.Domain.csproj" />
   </Project>

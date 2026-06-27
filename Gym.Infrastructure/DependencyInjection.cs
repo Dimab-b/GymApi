@@ -1,4 +1,5 @@
-﻿using Gym.Domain.Members;
+﻿using Gym.Domain.Common;
+using Gym.Domain.Members;
 using Gym.Infrastructure.Members;
 using Gym.Infrastructure.Persistance;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ namespace Gym.Infrastructure
             services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 
             services.AddScoped<IMemberRepository, MemberRepository>();
+            services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<AppDbContext>());
 
             return services;
         }
