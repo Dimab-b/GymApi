@@ -6,4 +6,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Gym.Application\Gym.Application.csproj" />
+    <ProjectReference Include="..\Gym.Infrastructure\Gym.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\ForBusiness\" />
+  </ItemGroup>
+
 </Project>
