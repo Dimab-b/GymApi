@@ -76,6 +76,9 @@ namespace Gym.Domain.Members
 
             var activeSub = _subscriptions.FirstOrDefault(s => s.IsActive);
 
+            if (activeSub == null)
+                throw new InvalidOperationException("Member does not have an active subscription to extend.");
+
             activeSub.Extend(extraMonths);
         }
     }

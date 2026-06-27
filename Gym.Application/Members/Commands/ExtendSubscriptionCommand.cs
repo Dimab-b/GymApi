@@ -19,7 +19,7 @@ namespace Gym.Application.Members.Commands
 
         public async Task Handle(ExtendSubscriptionCommand command , CancellationToken token = default)
         {
-            var member = await _memberRepository.GetByIdAsync(command.Id);
+            var member = await _memberRepository.GetByIdAsync(command.Id , token);
 
             if (member == null)
                 throw new ArgumentNullException("That member not found");
