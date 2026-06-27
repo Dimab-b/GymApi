@@ -67,5 +67,16 @@ namespace Gym.Domain.Members
 
             AddDomainEvent(new BodyMetricsUpdatedEvent(Id, weight, height));
         }
+
+
+        public void ExtendActiveSubscription(int extraMonths)
+        {
+            if (IsBanned)
+                throw new InvalidOperationException("Banned members cannot extend subscription");
+
+            var activeSub = _subscriptions.FirstOrDefault(s => s.IsActive);
+
+            activeSub.Extend(extraMonths);
+        }
     }
 }
