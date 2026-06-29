@@ -81,5 +81,22 @@ namespace Gym.Domain.Members
 
             activeSub.Extend(extraMonths);
         }
+
+
+        public void BanUser()
+        {
+            this.IsBanned = true;
+
+
+            var activeSubscriptions = _subscriptions.Where(s => s.IsActive).ToList();
+
+            
+            foreach (var sub in activeSubscriptions)
+            {
+                sub.Cancel();
+            }
+
+            AddDomainEvent(new MemberBannedEvent(this.Id));
+        }
     }
 }

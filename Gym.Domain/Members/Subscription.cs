@@ -3,6 +3,7 @@ using Gym.Domain.Members.Value_Objects;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace Gym.Domain.Members
 {
@@ -30,6 +31,15 @@ namespace Gym.Domain.Members
         internal void Extend(int extraMonths)
         {
             EndDate = EndDate.AddMonths(extraMonths);
+        }
+
+        internal void Cancel()
+        {
+            if (EndDate < DateTime.UtcNow)
+                return;
+
+            
+            EndDate = DateTime.UtcNow;
         }
     }
 }
