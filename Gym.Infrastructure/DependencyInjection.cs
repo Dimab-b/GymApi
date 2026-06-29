@@ -16,7 +16,7 @@ namespace Gym.Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+            services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString , x => x.MigrationsAssembly("Gym.Infrastructure")));
 
             services.AddScoped<IMemberRepository, MemberRepository>();
             services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<AppDbContext>());

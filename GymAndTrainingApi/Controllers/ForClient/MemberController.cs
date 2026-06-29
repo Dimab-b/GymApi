@@ -1,4 +1,6 @@
 using Gym.Application.Members.Commands;
+using Gym.Application.Members.Dto_s;
+using Gym.Application.Members.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Win32;
@@ -15,7 +17,7 @@ namespace Gym.Api.Controllers.ForClient
 
 
 
-        [HttpPost("Register")]
+        [HttpPost("/members/register")]
         public async Task<ActionResult<Guid>> RegisterMember(RegisterMemberCommand command , CancellationToken cancellationToken = default)
         {
             var memberId = await _mediator.Send(command , cancellationToken);
@@ -44,6 +46,13 @@ namespace Gym.Api.Controllers.ForClient
             await _mediator.Send(command, cancellationToken);
 
             return Ok("Subscription successfully purchased.");
+        }
+
+
+        [HttpGet("members/get-all-members-with-last-subscription")]
+        public async Task<IEnumerable<MemberReadDto>> GetAllMembers()
+        {
+            return await _mediator.Send(new GetAllMembersWithLatestSubscriptionQuery());
         }
 
 

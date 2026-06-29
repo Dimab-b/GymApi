@@ -8,14 +8,16 @@
 
   <ItemGroup>
     <Folder Include="Bookings\" />
-    <Folder Include="Members\Queries\" />
     <Folder Include="Trainers\" />
     <Folder Include="Workouts\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.1.1" />
+    <PackageReference Include="Dapper" Version="2.1.79" />
     <PackageReference Include="MediatR" Version="14.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.4" />
+    <PackageReference Include="Npgsql" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup>
