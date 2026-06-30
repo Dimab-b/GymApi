@@ -63,6 +63,10 @@ namespace Gym.Domain.Members
 
         public void UpdateBodyMetrics(decimal height, decimal weight, int age, string goal)
         {
+            if (this.IsBanned)
+            {
+                throw new InvalidOperationException("Banned members cannot update body-metrics");
+            }
             BodyMetrics = new BodyMetrics(height, weight, age, goal);
 
             AddDomainEvent(new BodyMetricsUpdatedEvent(Id, weight, height));
