@@ -17,7 +17,7 @@ namespace Gym.Api.Controllers.ForClient
 
 
 
-        [HttpPost("/members/register")]
+        [HttpPost("register")]
         public async Task<ActionResult<Guid>> RegisterMember(RegisterMemberCommand command , CancellationToken cancellationToken = default)
         {
             var memberId = await _mediator.Send(command , cancellationToken);
@@ -26,7 +26,7 @@ namespace Gym.Api.Controllers.ForClient
         }
 
 
-        [HttpPost("{id:guid}/subscriptions/purchase")]
+        [HttpPost("{id:guid}/profile/subscriptions/purchase")]
         public async Task<IActionResult> PurchaseSubscription(Guid id, [FromBody] PurchaseSubscriptionRequest request, CancellationToken cancellationToken)
         {
             var command = new PurchaseSubscriptionCommand(id, request.DurationMonths, request.Value, request.Currency);
@@ -38,21 +38,21 @@ namespace Gym.Api.Controllers.ForClient
 
 
 
-        [HttpPost("{id:guid}/subscriptions/extend")]
+        [HttpPost("{id:guid}/profile/subscriptions/extend")]
         public async Task<IActionResult> ExtendSubscription(Guid id , [FromBody] ExtendSubscriptionRequest request , CancellationToken cancellationToken = default )
         {
             var command = new ExtendSubscriptionCommand(id , request.ExtraMonths);
 
             await _mediator.Send(command, cancellationToken);
 
-            return Ok("Subscription successfully purchased.");
+            return Ok("Subscription successfully extended.");
         }
 
 
-        [HttpPatch("/members/{id:guid}/update-body-metrics")]
+        [HttpPatch("{id:guid}/profile/body-metrics")]
         public async Task<IActionResult> UpdateBodyMetrics(Guid id, [FromBody] UpdateBodyMetricsRequest request , CancellationToken cancellationToken = default)
         {
-            var command = new UpdateBodyMetricsCommand(id ,request.height , request.weight , request.age , request.goal);
+            var command = new UpdateBodyMetricsCommand(id ,request.Height , request.Weight , request.Age , request.Goal);
 
             await _mediator.Send(command, cancellationToken);
 
@@ -62,6 +62,6 @@ namespace Gym.Api.Controllers.ForClient
 
         public record PurchaseSubscriptionRequest(int DurationMonths , decimal Value , string Currency);
         public record ExtendSubscriptionRequest(int ExtraMonths);
-        public record UpdateBodyMetricsRequest(decimal height, decimal weight, int age, string goal);
+        public record UpdateBodyMetricsRequest(decimal Height, decimal Weight, int Age, string Goal);
     }
 }
