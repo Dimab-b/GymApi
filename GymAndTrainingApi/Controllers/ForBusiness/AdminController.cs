@@ -25,12 +25,23 @@ namespace Gym.Api.Controllers.ForBusiness
         }
 
 
-        [HttpPatch("/members/{id:guid}/ban-user")]
+        [HttpPatch("members/{id:guid}/ban-user")]
         public async Task<ActionResult<bool>> BanUserById(Guid id)
         {
             var command = new BanClientByIdCommand(id);
 
             var res = await _mediator.Send(command);
+
+            return Ok(res);
+        }
+
+
+        [HttpGet("members/{id:guid}")]
+        public async Task<ActionResult<MemberReadDto>> GetMemberById(Guid id)
+        {
+            var request = new GetMemberByIdQuery(id);
+
+            var res = await _mediator.Send(request);
 
             return Ok(res);
         }

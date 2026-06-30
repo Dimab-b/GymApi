@@ -22,7 +22,7 @@ namespace Gym.Application.Members.Commands
             var member = await _memberRepository.GetByIdAsync(command.Id , token);
 
             if (member == null)
-                throw new ArgumentNullException("That member not found");
+                throw new KeyNotFoundException("That member not found");
 
             member.ExtendActiveSubscription(command.ExtraMonths);
 
