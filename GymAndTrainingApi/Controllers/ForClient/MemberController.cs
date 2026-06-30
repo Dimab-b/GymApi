@@ -39,7 +39,7 @@ namespace Gym.Api.Controllers.ForClient
 
 
         [HttpPost("{id:guid}/subscriptions/extend")]
-        public async Task<IActionResult> ExtendSubscription(Guid id , [FromBody] ExtendSubscriptionRequest request , CancellationToken cancellationToken )
+        public async Task<IActionResult> ExtendSubscription(Guid id , [FromBody] ExtendSubscriptionRequest request , CancellationToken cancellationToken = default )
         {
             var command = new ExtendSubscriptionCommand(id , request.ExtraMonths);
 
@@ -49,14 +49,19 @@ namespace Gym.Api.Controllers.ForClient
         }
 
 
-        [HttpGet("members/get-all-members-with-last-subscription")]
-        public async Task<IEnumerable<MemberReadDto>> GetAllMembers()
+        [HttpPatch("/members/{id:guid}/update-body-metrics")]
+        public async Task<IActionResult> UpdateBodyMetrics(Guid id, [FromBody] UpdateBodyMetricsRequest request , CancellationToken cancellationToken = default)
         {
-            return await _mediator.Send(new GetAllMembersWithLatestSubscriptionQuery());
+            var command = new UpdateBodyMetricsCommand(id ,request.height , request.weight , request.age , request.goal);
+
+            await _mediator.Send(command, cancellationToken);
+
+            return Ok("Body Metrics successfully updated");
         }
 
 
         public record PurchaseSubscriptionRequest(int DurationMonths , decimal Value , string Currency);
         public record ExtendSubscriptionRequest(int ExtraMonths);
+        public record UpdateBodyMetricsRequest(decimal height, decimal weight, int age, string goal);
     }
 }
