@@ -59,6 +59,16 @@ namespace Gym.Api.Controllers.ForClient
             return Ok("Body Metrics successfully updated");
         }
 
+        [HttpGet("{id:guid}/profile")]
+        public async Task<ActionResult<MemberReadDto>> GetMember(Guid id , CancellationToken cancellationToken = default)
+        {
+            var query = new GetMemberByIdWithSubscriptionsQuery(id);
+
+            var res = await _mediator.Send(query, cancellationToken);
+
+            return Ok(res);
+        }
+
 
         public record PurchaseSubscriptionRequest(int DurationMonths , decimal Value , string Currency);
         public record ExtendSubscriptionRequest(int ExtraMonths);

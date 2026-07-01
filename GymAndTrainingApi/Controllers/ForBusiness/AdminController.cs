@@ -19,29 +19,29 @@ namespace Gym.Api.Controllers.ForBusiness
         }
 
         [HttpGet("members/get-all-members-with-last-subscription")]
-        public async Task<IEnumerable<MemberReadDto>> GetAllMembers()
+        public async Task<IEnumerable<MemberReadDto>> GetAllMembers(CancellationToken cancellationToken = default)
         {
-            return await _mediator.Send(new GetAllMembersWithLatestSubscriptionQuery());
+            return await _mediator.Send(new GetAllMembersWithLatestSubscriptionQuery() , cancellationToken);
         }
 
 
         [HttpPatch("members/{id:guid}/ban-user")]
-        public async Task<ActionResult<bool>> BanUserById(Guid id)
+        public async Task<ActionResult<bool>> BanUserById(Guid id , CancellationToken cancellationToken = default)
         {
             var command = new BanClientByIdCommand(id);
 
-            var res = await _mediator.Send(command);
+            var res = await _mediator.Send(command , cancellationToken);
 
             return Ok(res);
         }
 
 
         [HttpGet("members/{id:guid}")]
-        public async Task<ActionResult<MemberReadDto>> GetMemberById(Guid id)
+        public async Task<ActionResult<MemberReadDto>> GetMemberById(Guid id , CancellationToken cancellationToken = default)
         {
             var request = new GetMemberByIdQuery(id);
 
-            var res = await _mediator.Send(request);
+            var res = await _mediator.Send(request , cancellationToken);
 
             return Ok(res);
         }
