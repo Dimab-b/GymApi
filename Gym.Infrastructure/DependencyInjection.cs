@@ -1,5 +1,7 @@
-﻿using Gym.Domain.Common;
+﻿using Gym.Application.Common.Interfaces;
+using Gym.Domain.Common;
 using Gym.Domain.Members;
+using Gym.Infrastructure.Common.Services;
 using Gym.Infrastructure.Members;
 using Gym.Infrastructure.Persistance;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +22,7 @@ namespace Gym.Infrastructure
 
             services.AddScoped<IMemberRepository, MemberRepository>();
             services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<AppDbContext>());
-
+            services.AddTransient<IEmailSender, EmailSender>();
             return services;
         }
     }
