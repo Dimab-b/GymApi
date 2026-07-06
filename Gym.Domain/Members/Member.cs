@@ -56,7 +56,7 @@ namespace Gym.Domain.Members
 
             _subscriptions.Add(newSub);
 
-            AddDomainEvent(new SubscriptionPurchasedEvent(this.Id, newSub.Id));
+            AddDomainEvent(new SubscriptionPurchasedEvent(this.Id, newSub.Id , newSub.StartDate , newSub.EndDate));
 
             return newSub.Price.Value * durationMonths;
         }

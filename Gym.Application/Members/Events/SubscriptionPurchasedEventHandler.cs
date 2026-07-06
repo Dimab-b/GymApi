@@ -23,25 +23,14 @@ namespace Gym.Application.Members.Events
             var member = await _memberRepository.GetByIdAsync(purchasedEvent.MemberId , cancellationToken) ?? throw new ArgumentException("No member found"); 
 
             var sb = new StringBuilder();
-            var foundActive = false;
-
-            foreach (var el in member.Subscriptions)
-            {
-                if (el.IsActive)
-                {
-                    foundActive = true;
-                    sb.AppendLine($"{member.Name}Thank for purchasing a subscription of our Gym");
-                    sb.AppendLine($"Start date of subscription: {el.StartDate}");
-                    sb.AppendLine($"End date of subscription: {el.EndDate}");
-                    sb.AppendLine("Enjoy your training");
-                    break;
-                }
-            }
-            if (!foundActive)
-                throw new ArgumentException("No active subscription");
+                    
+            sb.AppendLine($"{member.Name} ,Thank for purchasing a subscription of our Gym");
+            sb.AppendLine($"Start date of subscription: {purchasedEvent.StartDate}");
+            sb.AppendLine($"End date of subscription: {purchasedEvent.EndDate}");
+            sb.AppendLine("Enjoy your training");
+                    
 
             var body = sb.ToString();
-
 
             await _emailSender.SendAsync(member.Email.Value , "Purchased subscription" , body);
         }
