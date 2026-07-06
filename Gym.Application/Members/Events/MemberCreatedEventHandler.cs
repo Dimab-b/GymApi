@@ -10,12 +10,9 @@ namespace Gym.Application.Members.Events
     public class MemberCreatedEventHandler : INotificationHandler<MemberCreatedEvent>
     {
         private readonly IEmailSender _emailSender;
-        private readonly IMemberRepository _memberRepository;
-
-        public MemberCreatedEventHandler(IEmailSender emailSender , IMemberRepository memberRepository)
+        public MemberCreatedEventHandler(IEmailSender emailSender)
         {
             _emailSender = emailSender;
-            _memberRepository = memberRepository;
         }
 
         public async Task Handle(MemberCreatedEvent command , CancellationToken cancellationToken = default)
