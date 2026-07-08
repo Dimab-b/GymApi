@@ -1,4 +1,4 @@
-﻿using Gym.Domain.Members.Value_Objects;
+﻿using Gym.Domain.Common.VO;
 using System;
 using System.Collections.Generic;
 using System.Text;

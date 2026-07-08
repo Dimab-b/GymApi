@@ -1,5 +1,5 @@
 ﻿using Gym.Domain.Common;
-using Gym.Domain.Members.Value_Objects;
+using Gym.Domain.Common.VO;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -47,6 +47,8 @@ namespace Gym.Domain.Trainers
 
         public void ChangePrice(Price price)
         {
+            if (!this.IsActive)
+                throw new ArgumentException("Inactive trainer can't change price");
             this.SessionPrice = price;
         }
 

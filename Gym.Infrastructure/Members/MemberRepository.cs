@@ -1,5 +1,5 @@
-﻿using Gym.Domain.Members;
-using Gym.Domain.Members.Value_Objects;
+﻿using Gym.Domain.Common.VO;
+using Gym.Domain.Members;
 using Gym.Infrastructure.Persistance;
 using System;
 using System.Collections.Generic;

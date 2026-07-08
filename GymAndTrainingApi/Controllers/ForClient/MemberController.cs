@@ -22,7 +22,7 @@ namespace Gym.Api.Controllers.ForClient
         {
             var memberId = await _mediator.Send(command , cancellationToken);
 
-            return CreatedAtAction(nameof(RegisterMember), new { id = memberId }, memberId);
+            return CreatedAtAction(nameof(GetMember), new { id = memberId }, memberId);
         }
 
 

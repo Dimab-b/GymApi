@@ -1,5 +1,5 @@
-﻿using FluentEmail.Core;
-using Gym.Domain.Common;
+﻿using Gym.Domain.Common;
+using Gym.Domain.Common.VO;
 using Gym.Domain.Members;
 using Gym.Domain.Members.Value_Objects;
 using Gym.Domain.Trainers;
@@ -26,7 +26,7 @@ namespace Gym.Application.Trainers.Commands
 
         public async Task<Guid> Handle(CreateTrainerCommand command, CancellationToken cancellationToken = default)
         {
-            var validEmail = new Domain.Members.Value_Objects.Email(command.Email);
+            var validEmail = new Email(command.Email);
             var validPrice = new Price(command.SessionPrice, command.Currency);
 
             var emailExists = await _trainerRepository.ExistsByEmailAsync(validEmail, cancellationToken);
