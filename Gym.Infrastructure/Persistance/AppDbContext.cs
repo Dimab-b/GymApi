@@ -1,5 +1,6 @@
 ﻿using Gym.Domain.Common;
 using Gym.Domain.Members;
+using Gym.Domain.Trainers;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -14,6 +15,7 @@ namespace Gym.Infrastructure.Persistance
         public AppDbContext(DbContextOptions options , IPublisher publisher) : base(options) { _publisher = publisher; }
 
         public DbSet<Member> Members { get; set; } = null!;
+        public DbSet<Trainer> Trainers { get; set; } = null!;
 
         public DbSet<Subscription> Subscriptions {  get; set; } = null!;
 
