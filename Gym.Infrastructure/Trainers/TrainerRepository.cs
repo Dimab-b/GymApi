@@ -1,4 +1,4 @@
-﻿using Gym.Domain.Members.Value_Objects;
+﻿using Gym.Domain.Common.VO;
 using Gym.Domain.Trainers;
 using Gym.Infrastructure.Persistance;
 using Microsoft.EntityFrameworkCore;

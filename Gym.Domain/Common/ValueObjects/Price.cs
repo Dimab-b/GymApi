@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Gym.Domain.Members.Value_Objects
+namespace Gym.Domain.Common.VO
 {
     public record Price
     {
