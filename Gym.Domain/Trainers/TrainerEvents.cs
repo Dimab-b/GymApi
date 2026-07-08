@@ -7,6 +7,6 @@ using System.Text;
 namespace Gym.Domain.Trainers
 {
     public record TrainerCreatedEvent() : IDomainEvent;
-    
+    public record TrainerDeactivatedEvent() : IDomainEvent;
     
 }

@@ -61,5 +61,27 @@ namespace Gym.Api.Controllers.ForBusiness
             var trainerId = await _mediator.Send(command);
             return CreatedAtAction(nameof(CreateTrainer), new { id = trainerId }, trainerId);
         }
+
+        [HttpPatch("trainers/{id:guid}/price")]
+        public async Task<IActionResult> ChangeTrainerPrice(Guid id , NewTrainerPrice request , CancellationToken cancellationToken = default)
+        {
+            var command = new ChangeTrainerPriceCommand(id , request.NewPrice , request.Currency);
+
+            await _mediator.Send(command , cancellationToken);
+
+            return Ok();
+        }
+
+        [HttpPatch("trainers/{id:guid}/deactivate")]
+        public async Task<IActionResult> DeactivateTrainer(Guid id)
+        {
+            var command = new DeactivateTrainerCommand(id);
+            await _mediator.Send(command);
+
+            return Ok();
+        }
+
+
+        public record NewTrainerPrice(decimal NewPrice, string Currency);
     }
 }
