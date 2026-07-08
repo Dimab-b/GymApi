@@ -59,6 +59,8 @@ namespace Gym.Domain.Trainers
                 throw new InvalidOperationException("Trainer is already inactive");
 
             this.IsActive = false;
+
+            AddDomainEvent(new TrainerDeactivatedEvent());
         }
 
 
