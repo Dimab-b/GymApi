@@ -1,4 +1,5 @@
-﻿using Gym.Domain.Trainers;
+﻿using Gym.Domain.Members.Value_Objects;
+using Gym.Domain.Trainers;
 using Gym.Infrastructure.Persistance;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -15,7 +16,7 @@ namespace Gym.Infrastructure.Trainers
             _context = context;
         }
 
-        public async Task<Trainer?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<Trainer> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _context.Trainers.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
@@ -31,9 +32,14 @@ namespace Gym.Infrastructure.Trainers
             _context.Trainers.Update(trainer);
         }
 
-        public async Task<Trainer?> GetBySpecialization(string Specialization)
+        public async Task<IEnumerable<Trainer>> GetBySpecialization(string specialization , CancellationToken cancellationToken = default)
         {
-            return await _context.Trainers.Where(x => EF.Functions.Like(x.Specialization, $"%%{Specialization}%%")).ToListAsync();
+            return await _context.Trainers.Where(x => EF.Functions.Like(x.Specialization, $"%%{specialization}%%")).AsNoTracking().ToListAsync(cancellationToken);
+        }
+
+        public async Task<bool> ExistsByEmailAsync(Email email, CancellationToken cancellationToken = default)
+        {
+            return await _context.Trainers.AnyAsync(x => x.Email.Value == email.Value, cancellationToken);
         }
     }
 }

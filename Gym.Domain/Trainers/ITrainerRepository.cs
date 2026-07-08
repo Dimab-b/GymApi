@@ -1,4 +1,4 @@
-﻿using Gym.Domain.Members;
+﻿using Gym.Domain.Members.Value_Objects;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,6 +10,7 @@ namespace Gym.Domain.Trainers
         Task<Trainer?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
         void Add(Trainer trainer);
         void Update(Trainer trainer);
-        Task<Trainer?> GetBySpecialization(string Specialization);
+        Task<IEnumerable<Trainer?>> GetBySpecialization(string Specialization , CancellationToken cancellationToken = default);
+        Task<bool> ExistsByEmailAsync(Email email, CancellationToken cancellationToken = default);
     }
 }
