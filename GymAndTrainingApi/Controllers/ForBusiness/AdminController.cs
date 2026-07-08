@@ -22,27 +22,27 @@ namespace Gym.Api.Controllers.ForBusiness
         [HttpGet("members/get-all-members-with-last-subscription")]
         public async Task<IEnumerable<MemberReadDto>> GetAllMembers(CancellationToken cancellationToken = default)
         {
-            return await _mediator.Send(new GetAllMembersWithLatestSubscriptionQuery() , cancellationToken);
+            return await _mediator.Send(new GetAllMembersWithLatestSubscriptionQuery(), cancellationToken);
         }
 
 
         [HttpPatch("members/{id:guid}/ban-user")]
-        public async Task<ActionResult<bool>> BanUserById(Guid id , CancellationToken cancellationToken = default)
+        public async Task<ActionResult<bool>> BanUserById(Guid id, CancellationToken cancellationToken = default)
         {
             var command = new BanClientByIdCommand(id);
 
-            var res = await _mediator.Send(command , cancellationToken);
+            var res = await _mediator.Send(command, cancellationToken);
 
             return Ok(res);
         }
 
 
         [HttpGet("members/{id:guid}")]
-        public async Task<ActionResult<MemberReadDto>> GetMemberById(Guid id , CancellationToken cancellationToken = default)
+        public async Task<ActionResult<MemberReadDto>> GetMemberById(Guid id, CancellationToken cancellationToken = default)
         {
             var request = new GetMemberByIdQuery(id);
 
-            var res = await _mediator.Send(request , cancellationToken);
+            var res = await _mediator.Send(request, cancellationToken);
 
             return Ok(res);
         }
@@ -50,38 +50,49 @@ namespace Gym.Api.Controllers.ForBusiness
         [HttpGet("stats")]
         public async Task<ActionResult<AdminStatsDto>> GetStats(CancellationToken cancellationToken = default)
         {
-            var res = await _mediator.Send(new GetAdminStatsQuery() , cancellationToken);
+            var res = await _mediator.Send(new GetAdminStatsQuery(), cancellationToken);
 
             return Ok(res);
         }
 
         [HttpPost("trainers")]
-        public async Task<ActionResult<Guid>> CreateTrainer(CreateTrainerCommand command , CancellationToken cancellationToken = default)
+        public async Task<ActionResult<Guid>> CreateTrainer(CreateTrainerCommand command, CancellationToken cancellationToken = default)
         {
             var trainerId = await _mediator.Send(command);
             return CreatedAtAction(nameof(CreateTrainer), new { id = trainerId }, trainerId);
         }
 
         [HttpPatch("trainers/{id:guid}/price")]
-        public async Task<IActionResult> ChangeTrainerPrice(Guid id , NewTrainerPrice request , CancellationToken cancellationToken = default)
+        public async Task<IActionResult> ChangeTrainerPrice(Guid id, NewTrainerPriceRequest request, CancellationToken cancellationToken = default)
         {
-            var command = new ChangeTrainerPriceCommand(id , request.NewPrice , request.Currency);
+            var command = new ChangeTrainerPriceCommand(id, request.NewPrice, request.Currency);
 
-            await _mediator.Send(command , cancellationToken);
+            await _mediator.Send(command, cancellationToken);
 
             return Ok();
         }
 
         [HttpPatch("trainers/{id:guid}/deactivate")]
-        public async Task<IActionResult> DeactivateTrainer(Guid id)
+        public async Task<IActionResult> DeactivateTrainer(Guid id, CancellationToken cancellationToken = default)
         {
             var command = new DeactivateTrainerCommand(id);
-            await _mediator.Send(command);
+            await _mediator.Send(command, cancellationToken);
 
             return Ok();
         }
 
+        [HttpPut("trainers{id:guid}")]
+        public async Task<IActionResult> UpdateProfile(Guid id , UpdateTrainerProfileRequest request , CancellationToken cancellationToken = default)
+        {
+            var command = new UpdateTrainerProfileCommand(id , request.Name , request.Specialization);
 
-        public record NewTrainerPrice(decimal NewPrice, string Currency);
+            await _mediator.Send(command ,cancellationToken);
+
+            return NoContent();
+        }
+
+
+        public record NewTrainerPriceRequest(decimal NewPrice, string Currency);
+        public record UpdateTrainerProfileRequest(string Name, string Specialization);
     }
 }

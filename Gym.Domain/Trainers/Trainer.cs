@@ -64,5 +64,19 @@ namespace Gym.Domain.Trainers
         }
 
 
+        public void UpdateProfile(string name, string specialization)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name), "Trainer name cannot be empty");
+
+            if (string.IsNullOrWhiteSpace(specialization))
+                throw new ArgumentNullException(nameof(specialization), "Specialization must be filled");
+
+
+            this.Name = name;
+            this.Specialization = specialization;
+        }
+
+
     }
 }
