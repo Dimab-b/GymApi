@@ -1,6 +1,7 @@
 ﻿using Gym.Application.Members.Commands;
 using Gym.Application.Members.Dto_s;
 using Gym.Application.Members.Queries;
+using Gym.Application.Trainers.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -52,6 +53,13 @@ namespace Gym.Api.Controllers.ForBusiness
             var res = await _mediator.Send(new GetAdminStatsQuery() , cancellationToken);
 
             return Ok(res);
+        }
+
+        [HttpPost("trainers")]
+        public async Task<ActionResult<Guid>> CreateTrainer(CreateTrainerCommand command , CancellationToken cancellationToken = default)
+        {
+            var trainerId = await _mediator.Send(command);
+            return CreatedAtAction(nameof(CreateTrainer), new { id = trainerId }, trainerId);
         }
     }
 }
