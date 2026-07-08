@@ -66,6 +66,8 @@ namespace Gym.Domain.Trainers
 
         public void UpdateProfile(string name, string specialization)
         {
+            if (!this.IsActive)
+                throw new ArgumentException("Inactive trainer can't change profile");
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name), "Trainer name cannot be empty");
 
