@@ -1,4 +1,5 @@
 ﻿using Gym.Domain.Common;
+using Gym.Domain.Common.VO;
 using Gym.Domain.Members;
 using Gym.Domain.Members.Value_Objects;
 using MediatR;
