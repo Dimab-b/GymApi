@@ -21,9 +21,9 @@ namespace Gym.Api.Controllers.ForClient
 
 
         [HttpPost("register")]
-        public async Task<ActionResult<Guid>> RegisterMember(RegisterMemberCommand command , CancellationToken cancellationToken = default)
+        public async Task<ActionResult<Guid>> RegisterMember(RegisterMemberCommand command, CancellationToken cancellationToken = default)
         {
-            var memberId = await _mediator.Send(command , cancellationToken);
+            var memberId = await _mediator.Send(command, cancellationToken);
 
             return CreatedAtAction(nameof(GetMember), new { id = memberId }, memberId);
         }
@@ -42,9 +42,9 @@ namespace Gym.Api.Controllers.ForClient
 
 
         [HttpPost("{id:guid}/profile/subscriptions/extend")]
-        public async Task<IActionResult> ExtendSubscription(Guid id , [FromBody] ExtendSubscriptionRequest request , CancellationToken cancellationToken = default )
+        public async Task<IActionResult> ExtendSubscription(Guid id, [FromBody] ExtendSubscriptionRequest request, CancellationToken cancellationToken = default)
         {
-            var command = new ExtendSubscriptionCommand(id , request.ExtraMonths);
+            var command = new ExtendSubscriptionCommand(id, request.ExtraMonths);
 
             await _mediator.Send(command, cancellationToken);
 
@@ -53,9 +53,9 @@ namespace Gym.Api.Controllers.ForClient
 
 
         [HttpPatch("{id:guid}/profile/body-metrics")]
-        public async Task<IActionResult> UpdateBodyMetrics(Guid id, [FromBody] UpdateBodyMetricsRequest request , CancellationToken cancellationToken = default)
+        public async Task<IActionResult> UpdateBodyMetrics(Guid id, [FromBody] UpdateBodyMetricsRequest request, CancellationToken cancellationToken = default)
         {
-            var command = new UpdateBodyMetricsCommand(id ,request.Height , request.Weight , request.Age , request.Goal);
+            var command = new UpdateBodyMetricsCommand(id, request.Height, request.Weight, request.Age, request.Goal);
 
             await _mediator.Send(command, cancellationToken);
 
@@ -63,7 +63,7 @@ namespace Gym.Api.Controllers.ForClient
         }
 
         [HttpGet("{id:guid}/profile")]
-        public async Task<ActionResult<MemberReadDto>> GetMember(Guid id , CancellationToken cancellationToken = default)
+        public async Task<ActionResult<MemberReadDto>> GetMember(Guid id, CancellationToken cancellationToken = default)
         {
             var query = new GetMemberByIdWithSubscriptionsQuery(id);
 
@@ -72,10 +72,18 @@ namespace Gym.Api.Controllers.ForClient
             return Ok(res);
         }
 
-        [HttpGet("trainers")]
-        public async Task<ActionResult<PagedResult<TrainerReadDto>>> GetActiveTrainers([FromQuery]GetActiveTrainersQuery query , CancellationToken cancellationToken = default)
+        [HttpGet("/trainers")]
+        public async Task<ActionResult<PagedResult<TrainerReadDto>>> GetActiveTrainers([FromQuery] GetActiveTrainersQuery query, CancellationToken cancellationToken = default)
         {
-            return await _mediator.Send(query, cancellationToken);
+            var res = await _mediator.Send(query, cancellationToken);
+            return Ok(res);
+        }
+
+        [HttpGet("trainers/{id:Guid}")]
+        public async Task<ActionResult<TrainerReadDto>> GetTrainerProfile(Guid id , CancellationToken cancellationToken = default)
+        {
+            var res = await _mediator.Send(new GetTrainerProfileQuery(id) , cancellationToken);
+            return Ok(res);
         }
 
 
