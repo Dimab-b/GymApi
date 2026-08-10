@@ -86,6 +86,13 @@ namespace Gym.Api.Controllers.ForClient
             return Ok(res);
         }
 
+        [HttpGet("trainers/{id:Guid}/availability")]
+        public async Task<ActionResult<List<AvailableSlotDto>>> GetTrainerAvailability(Guid id , [FromQuery]DateOnly Date , CancellationToken cancellationToken = default)
+        {
+            var query = new GetTrainerAvailabilityQuery(id , Date);
+            return Ok(await _mediator.Send(query , cancellationToken));
+        }
+
 
         public record PurchaseSubscriptionRequest(int DurationMonths , decimal Value , string Currency);
         public record ExtendSubscriptionRequest(int ExtraMonths);
