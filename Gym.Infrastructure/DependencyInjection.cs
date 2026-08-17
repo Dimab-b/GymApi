@@ -26,6 +26,9 @@ namespace Gym.Infrastructure
             services.AddScoped<ITrainerRepository, TrainerRepository>();
             services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<AppDbContext>());
             services.AddTransient<IEmailSender, EmailSender>();
+
+            services.AddFluentEmail("GymEmail@gmail.com", "Gym")
+                .AddSmtpSender("localhost", 25);
             return services;
         }
     }
