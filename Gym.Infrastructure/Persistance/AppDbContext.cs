@@ -1,4 +1,5 @@
-﻿using Gym.Domain.Common;
+﻿using Gym.Domain.Bookings;
+using Gym.Domain.Common;
 using Gym.Domain.Members;
 using Gym.Domain.Trainers;
 using MediatR;
@@ -16,7 +17,7 @@ namespace Gym.Infrastructure.Persistance
 
         public DbSet<Member> Members { get; set; } = null!;
         public DbSet<Trainer> Trainers { get; set; } = null!;
-
+        public DbSet<SessionBooking> Bookings { get; set; } = null!;
         public DbSet<Subscription> Subscriptions {  get; set; } = null!;
 
 

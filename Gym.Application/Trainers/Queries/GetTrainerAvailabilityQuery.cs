@@ -31,7 +31,7 @@ namespace Gym.Application.Trainers.Queries
 
             var sql = @"
             SELECT ""StartTime"", ""EndTime"" 
-            FROM ""SessionBooking"" 
+            FROM ""Bookings"" 
             WHERE ""TrainerId"" = @TrainerId 
               AND ""StartTime"" >= @StartOfDay
               AND ""StartTime"" < @EndOfDay
