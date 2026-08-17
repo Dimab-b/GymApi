@@ -61,6 +61,16 @@ namespace Gym.Domain.Bookings
 
             this.AddDomainEvent(new SessionCancelledEvent(this.Id , this.MemberId , this.TrainerId));
         }
+        public void CancelBySystem()
+        {
+            if (this.Status == BookingStatus.Completed)
+                throw new InvalidOperationException("You cannot cancel the session that already has been completed");
+            if (this.Status == BookingStatus.Cancelled)
+                return;
+            this.Status = BookingStatus.Cancelled;
+
+            this.AddDomainEvent(new SessionCancelledEvent(this.Id, this.MemberId, this.TrainerId));
+        }
 
         public void Complete()
         {
