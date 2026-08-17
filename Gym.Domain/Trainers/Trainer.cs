@@ -40,7 +40,7 @@ namespace Gym.Domain.Trainers
 
             var trainer = new Trainer(Guid.NewGuid(), name, email, specialization, sessionPrice);
 
-            trainer.AddDomainEvent(new TrainerCreatedEvent());
+            trainer.AddDomainEvent(new TrainerCreatedEvent(trainer.Name , trainer.Email.Value));
 
             return trainer;
         }
@@ -60,7 +60,7 @@ namespace Gym.Domain.Trainers
 
             this.IsActive = false;
 
-            AddDomainEvent(new TrainerDeactivatedEvent());
+            AddDomainEvent(new TrainerDeactivatedEvent(this.Id));
         }
 
 

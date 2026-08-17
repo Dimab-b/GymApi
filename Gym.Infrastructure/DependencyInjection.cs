@@ -1,7 +1,9 @@
 ﻿using Gym.Application.Common.Interfaces;
+using Gym.Domain.Bookings;
 using Gym.Domain.Common;
 using Gym.Domain.Members;
 using Gym.Domain.Trainers;
+using Gym.Infrastructure.Bookings;
 using Gym.Infrastructure.Common.Services;
 using Gym.Infrastructure.Members;
 using Gym.Infrastructure.Persistance;
@@ -24,6 +26,7 @@ namespace Gym.Infrastructure
 
             services.AddScoped<IMemberRepository, MemberRepository>();
             services.AddScoped<ITrainerRepository, TrainerRepository>();
+            services.AddScoped<IBookingRepository, BookingRepository>();
             services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<AppDbContext>());
             services.AddTransient<IEmailSender, EmailSender>();
 
