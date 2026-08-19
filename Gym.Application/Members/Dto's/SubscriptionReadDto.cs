@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Gym.Application.Members.Dto_s
 {
-    public class SubscriptionReadDto
+    public record SubscriptionReadDto
     {
         public Guid Id { get; set; }
         public DateTime StartDate { get; set; }
