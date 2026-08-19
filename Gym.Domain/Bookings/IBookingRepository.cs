@@ -12,5 +12,6 @@ namespace Gym.Domain.Bookings
         void Update(SessionBooking booking);
         Task<IEnumerable<SessionBooking>> GetByTrainerId(Guid TrainerId , CancellationToken cancellationToken = default);
         Task SaveChangesAsync(CancellationToken cancellationToken = default);
+        Task<bool> HasOverlapAsync(Guid trainerId, DateTime startTime, DateTime endTime, CancellationToken cancellationToken = default);
     }
 }
