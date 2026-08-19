@@ -16,7 +16,7 @@ namespace Gym.Infrastructure.Trainers
             _context = context;
         }
 
-        public async Task<Trainer> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<Trainer?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _context.Trainers.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
