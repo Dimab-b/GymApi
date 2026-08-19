@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Gym.Application.Trainers.Dto_s
 {
-    public class TrainerReadDto
+    public record TrainerReadDto
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;

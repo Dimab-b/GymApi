@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Gym.Application.Members.Dto_s
 {
-    public class MemberReadDto
+    public record MemberReadDto
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;

@@ -1,4 +1,6 @@
 using Gym.Application.Bookings.Commands;
+using Gym.Application.Bookings.Dto_s;
+using Gym.Application.Bookings.Queries;
 using Gym.Application.Common;
 using Gym.Application.Members.Commands;
 using Gym.Application.Members.Dto_s;
@@ -99,11 +101,18 @@ namespace Gym.Api.Controllers.ForClient
             var command = new CreateBookingCommand(id,request.TrainerId , request.StartTime);
             return Ok(await _mediator.Send(command , cancellationToken));
         }
+        [HttpGet("{id:Guid}/bookings")]
+        public async Task<ActionResult<PagedResult<BookingReadDto>>> GetMyBookings(Guid id , GetMyBookingsRequest request , CancellationToken cancellationToken = default)
+        {
+            var command = new GetMyBookingsQuery(id , request.Status , request.PageNumber , request.PageSize);
+            return Ok(await _mediator.Send(command, cancellationToken));
+        }
 
 
         public record PurchaseSubscriptionRequest(int DurationMonths , decimal Value , string Currency);
         public record ExtendSubscriptionRequest(int ExtraMonths);
         public record UpdateBodyMetricsRequest(decimal Height, decimal Weight, int Age, string Goal);
         public record CreateBookingRequest(Guid TrainerId, DateTime StartTime);
+        public record GetMyBookingsRequest(string? Status, int PageNumber, int PageSize);
     }
 }
