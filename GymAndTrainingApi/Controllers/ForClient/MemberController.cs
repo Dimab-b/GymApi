@@ -1,3 +1,4 @@
+using Gym.Application.Bookings.Commands;
 using Gym.Application.Common;
 using Gym.Application.Members.Commands;
 using Gym.Application.Members.Dto_s;
@@ -92,10 +93,17 @@ namespace Gym.Api.Controllers.ForClient
             var query = new GetTrainerAvailabilityQuery(id , Date);
             return Ok(await _mediator.Send(query , cancellationToken));
         }
+        [HttpPost("{id:Guid}/booking")]
+        public async Task<ActionResult<Guid>> CreateBooking(Guid id , [FromBody] CreateBookingRequest request , CancellationToken cancellationToken = default)
+        {
+            var command = new CreateBookingCommand(id,request.TrainerId , request.StartTime);
+            return Ok(await _mediator.Send(command , cancellationToken));
+        }
 
 
         public record PurchaseSubscriptionRequest(int DurationMonths , decimal Value , string Currency);
         public record ExtendSubscriptionRequest(int ExtraMonths);
         public record UpdateBodyMetricsRequest(decimal Height, decimal Weight, int Age, string Goal);
+        public record CreateBookingRequest(Guid TrainerId, DateTime StartTime);
     }
 }

@@ -38,5 +38,14 @@ namespace Gym.Infrastructure.Bookings
         {
             await _context.SaveChangesAsync(cancellationToken);
         }
+        public async Task<bool> HasOverlapAsync(Guid trainerId, DateTime startTime, DateTime endTime, CancellationToken cancellationToken = default)
+        {
+            return await _context.Bookings.AnyAsync(b =>
+        b.TrainerId == trainerId &&
+        b.Status != BookingStatus.Cancelled &&
+        b.StartTime < endTime &&
+        b.EndTime > startTime,
+        cancellationToken);
+        }
     }
 }
