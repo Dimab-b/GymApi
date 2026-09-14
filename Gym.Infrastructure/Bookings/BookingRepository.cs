@@ -1,6 +1,6 @@
 ﻿using Gym.Domain.Bookings;
 using Gym.Domain.Trainers;
-using Gym.Infrastructure.Persistance;
+using Gym.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -33,10 +33,6 @@ namespace Gym.Infrastructure.Bookings
             return await _context.Bookings.Where(x => x.TrainerId == TrainerId
                  && x.Status == BookingStatus.Scheduled
                  && x.StartTime >= DateTime.UtcNow).ToListAsync(cancellationToken);
-        }
-        public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            await _context.SaveChangesAsync(cancellationToken);
         }
         public async Task<bool> HasOverlapAsync(Guid trainerId, DateTime startTime, DateTime endTime, CancellationToken cancellationToken = default)
         {

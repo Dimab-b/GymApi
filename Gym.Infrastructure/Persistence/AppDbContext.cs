@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Gym.Infrastructure.Persistance
+namespace Gym.Infrastructure.Persistence
 {
     public class AppDbContext : DbContext , IUnitOfWork
     {

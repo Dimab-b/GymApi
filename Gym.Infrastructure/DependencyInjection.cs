@@ -6,7 +6,7 @@ using Gym.Domain.Trainers;
 using Gym.Infrastructure.Bookings;
 using Gym.Infrastructure.Common.Services;
 using Gym.Infrastructure.Members;
-using Gym.Infrastructure.Persistance;
+using Gym.Infrastructure.Persistence;
 using Gym.Infrastructure.Trainers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

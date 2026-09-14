@@ -62,7 +62,7 @@ namespace Gym.Api.Controllers.ForBusiness
         public async Task<ActionResult<Guid>> CreateTrainer(CreateTrainerCommand command, CancellationToken cancellationToken = default)
         {
             var trainerId = await _mediator.Send(command);
-            return CreatedAtAction(nameof(CreateTrainer), new { id = trainerId }, trainerId);
+            return CreatedAtAction(nameof(GetTrainerById), new { id = trainerId }, trainerId);
         }
 
         [HttpPatch("trainers/{id:guid}/price")]
@@ -84,7 +84,7 @@ namespace Gym.Api.Controllers.ForBusiness
             return Ok();
         }
 
-        [HttpPut("trainers{id:guid}")]
+        [HttpPut("trainers/{id:guid}")]
         public async Task<IActionResult> UpdateProfile(Guid id , UpdateTrainerProfileRequest request , CancellationToken cancellationToken = default)
         {
             var command = new UpdateTrainerProfileCommand(id , request.Name , request.Specialization);

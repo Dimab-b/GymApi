@@ -37,7 +37,7 @@ namespace Gym.Application.Trainers.Queries
               AND ""StartTime"" < @EndOfDay
               AND ""Status"" != @CancelledStatus;";
 
-            var command = new CommandDefinition(sql, new { TrainerId = query.TrainerId , StartOfDay = startOfDay , EndOfDay = endOfDay , CancelledStatus = (int)BookingStatus.Cancelled } , cancellationToken: cancellationToken);
+            var command = new CommandDefinition(sql, new { TrainerId = query.TrainerId , StartOfDay = startOfDay , EndOfDay = endOfDay , CancelledStatus = BookingStatus.Cancelled.ToString() } , cancellationToken: cancellationToken);
 
             var bookedSlots = (await connection.QueryAsync<BookedSlot>(command)).ToList();
 

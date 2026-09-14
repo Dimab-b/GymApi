@@ -1,9 +1,9 @@
 ﻿using Gym.Domain.Common.VO;
 using Gym.Domain.Members;
-using Gym.Infrastructure.Persistance;
+using Gym.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Text;
 
 namespace Gym.Infrastructure.Members

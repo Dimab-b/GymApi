@@ -26,7 +26,7 @@ namespace Gym.Application.Members.Queries
         {
             await using var connection = new NpgsqlConnection(_connection);
 
-            var sql = @"SELECT * FROM ""Members"" WHERE Id = @Id";
+            var sql = @"SELECT * FROM ""Members"" WHERE ""Id"" = @Id";
 
             var command = new CommandDefinition(
             sql,

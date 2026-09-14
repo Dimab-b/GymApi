@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Gym.Infrastructure.Persistance.Configurations
+namespace Gym.Infrastructure.Persistence.Configurations
 {
     public class SessionBookingConfiguration : IEntityTypeConfiguration<SessionBooking>
     {

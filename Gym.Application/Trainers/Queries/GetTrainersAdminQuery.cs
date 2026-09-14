@@ -32,6 +32,7 @@ namespace Gym.Application.Trainers.Queries
                 SELECT 
                     ""Id"", 
                     ""Name"", 
+                    ""Email"",
                     ""Specialization"", 
                     ""SessionPrice_Value"" AS Price, 
                     ""SessionPrice_Currency"" AS Currency

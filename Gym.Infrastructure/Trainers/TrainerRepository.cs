@@ -1,6 +1,6 @@
 ﻿using Gym.Domain.Common.VO;
 using Gym.Domain.Trainers;
-using Gym.Infrastructure.Persistance;
+using Gym.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -32,9 +32,9 @@ namespace Gym.Infrastructure.Trainers
             _context.Trainers.Update(trainer);
         }
 
-        public async Task<IEnumerable<Trainer>> GetBySpecialization(string specialization , CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<Trainer?>> GetBySpecialization(string specialization , CancellationToken cancellationToken = default)
         {
-            return await _context.Trainers.Where(x => EF.Functions.Like(x.Specialization, $"%%{specialization}%%")).AsNoTracking().ToListAsync(cancellationToken);
+            return await _context.Trainers.Where(x => EF.Functions.Like(x.Specialization, $"%{specialization}%")).AsNoTracking().ToListAsync(cancellationToken);
         }
 
         public async Task<bool> ExistsByEmailAsync(Email email, CancellationToken cancellationToken = default)

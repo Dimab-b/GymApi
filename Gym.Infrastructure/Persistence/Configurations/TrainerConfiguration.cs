@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Gym.Infrastructure.Persistance.Configurations
+namespace Gym.Infrastructure.Persistence.Configurations
 {
     internal class TrainerConfiguration : IEntityTypeConfiguration<Trainer>
     {

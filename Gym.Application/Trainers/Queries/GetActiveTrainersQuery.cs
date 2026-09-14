@@ -61,6 +61,7 @@ namespace Gym.Application.Trainers.Queries
             var sql = $@"SELECT 
                     ""Id"",
                     ""Name"", 
+                    ""Email"",
                     ""Specialization"", 
                     ""SessionPrice_Value"" AS Price, 
                     ""SessionPrice_Currency"" AS Currency

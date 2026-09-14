@@ -33,8 +33,6 @@ namespace Gym.Domain.Bookings
 
         public static SessionBooking Create(Guid memberId ,Guid trainerId , DateTime startTime, Price price)
         {
-            if (startTime < DateTime.UtcNow)
-                throw new ArgumentException("Time of workout cannot be in the past");
             if (startTime < DateTime.UtcNow.AddHours(12))
                 throw new ArgumentException("You must book a workout at least 12 hours in advance.");
             if (startTime > DateTime.UtcNow.AddDays(30))
@@ -51,12 +49,13 @@ namespace Gym.Domain.Bookings
 
         public void Cancel()
         {
+            if (this.Status == BookingStatus.Cancelled)
+                return;
             if (this.Status == BookingStatus.Completed)
                 throw new InvalidOperationException("You cannot cancel the session that already has been completed");
             if (this.StartTime < DateTime.UtcNow.AddDays(1))
                 throw new InvalidOperationException("Session cannot be canceled less than 24 hours in advance");
-            if (this.Status == BookingStatus.Cancelled)
-                return;
+
             this.Status = BookingStatus.Cancelled;
 
             this.AddDomainEvent(new SessionCancelledEvent(this.Id , this.MemberId , this.TrainerId));
