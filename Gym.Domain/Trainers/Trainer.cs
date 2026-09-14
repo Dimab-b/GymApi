@@ -35,9 +35,6 @@ namespace Gym.Domain.Trainers
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name), "Trainer name cannot be empty");
 
-            if (sessionPrice.Value < 0)
-                throw new ArgumentException("Session price cannot be negative");
-
             var trainer = new Trainer(Guid.NewGuid(), name, email, specialization, sessionPrice);
 
             trainer.AddDomainEvent(new TrainerCreatedEvent(trainer.Name , trainer.Email.Value));
@@ -50,6 +47,8 @@ namespace Gym.Domain.Trainers
             if (!this.IsActive)
                 throw new ArgumentException("Inactive trainer can't change price");
             this.SessionPrice = price;
+
+            this.AddDomainEvent(new TrainerChangedPrice(this.Id));
         }
 
 

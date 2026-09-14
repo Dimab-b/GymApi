@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Gym.Infrastructure.Persistance.Configurations;
+namespace Gym.Infrastructure.Persistence.Configurations;
 
 public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
 {

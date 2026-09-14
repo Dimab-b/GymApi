@@ -3,10 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity.ModelConfiguration;
 using System.Text;
 using Gym.Domain.Members.Value_Objects;
-namespace Gym.Infrastructure.Persistance.Configurations
+namespace Gym.Infrastructure.Persistence.Configurations
 {
     internal class MemberConfiguration : IEntityTypeConfiguration<Member>
     {
@@ -39,11 +38,12 @@ namespace Gym.Infrastructure.Persistance.Configurations
                 metricsBuilder.Property(b => b.Goal).HasColumnName("Goal").HasMaxLength(500);
             });
 
-           
+
             builder.HasMany(m => m.Subscriptions)
-                .WithOne() 
-                .HasForeignKey("MemberId") 
-                .OnDelete(DeleteBehavior.Cascade);
+                .WithOne()
+                .HasForeignKey("MemberId")
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
 
         
             builder.Navigation(m => m.Subscriptions)

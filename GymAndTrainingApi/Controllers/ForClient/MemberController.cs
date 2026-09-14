@@ -9,7 +9,6 @@ using Gym.Application.Trainers.Dto_s;
 using Gym.Application.Trainers.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Win32;
 
 namespace Gym.Api.Controllers.ForClient
 {
@@ -75,7 +74,7 @@ namespace Gym.Api.Controllers.ForClient
             return Ok(res);
         }
 
-        [HttpGet("/trainers")]
+        [HttpGet("trainers")]
         public async Task<ActionResult<PagedResult<TrainerReadDto>>> GetActiveTrainers([FromQuery] GetActiveTrainersQuery query, CancellationToken cancellationToken = default)
         {
             var res = await _mediator.Send(query, cancellationToken);

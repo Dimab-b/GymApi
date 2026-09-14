@@ -1,4 +1,5 @@
 ﻿using Gym.Domain.Bookings;
+using Gym.Domain.Common;
 using Gym.Domain.Trainers;
 using MediatR;
 using System;
@@ -10,9 +11,12 @@ namespace Gym.Application.Trainers.Events
     public class TrainerDeactivatedEventHandler : INotificationHandler<TrainerDeactivatedEvent>
     {
         private readonly IBookingRepository _bookingRepository;
-        public TrainerDeactivatedEventHandler(IBookingRepository bookingRepository)
+        private readonly IUnitOfWork _uow;
+
+        public TrainerDeactivatedEventHandler(IBookingRepository bookingRepository, IUnitOfWork uow)
         {
             _bookingRepository = bookingRepository;
+            _uow = uow;
         }
         public async Task Handle(TrainerDeactivatedEvent TrainerEvent , CancellationToken cancellationToken = default)
         {
@@ -21,7 +25,7 @@ namespace Gym.Application.Trainers.Events
             {
                 session.CancelBySystem();
             }
-            await _bookingRepository.SaveChangesAsync(cancellationToken);
+            await _uow.SaveChangesAsync(cancellationToken);
         }
     }
 }

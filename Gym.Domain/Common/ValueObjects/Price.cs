@@ -11,13 +11,13 @@ namespace Gym.Domain.Common.VO
         public Price(decimal value , string currency)
         {
             if (value <= 0)
-                throw new Exception("Value must be greater than 0");
+                throw new ArgumentException("Value must be greater than 0");
 
-            if (currency.Length > 3 || string.IsNullOrWhiteSpace(currency))
-                throw new Exception("Currency must be in 3 letters");
+            if (string.IsNullOrWhiteSpace(currency) || currency.Trim().Length != 3)
+                throw new ArgumentException("Currency must be in 3 letters");
 
             Value = value;
-            Currency = currency;
+            Currency = currency.Trim().ToUpperInvariant();
         }
     }
     

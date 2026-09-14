@@ -10,12 +10,10 @@ namespace Gym.Application.Trainers.Events
     public class TrainerCreatedEventHandler : INotificationHandler<TrainerCreatedEvent>
     {
         private readonly IEmailSender _emailSender;
-        private readonly ITrainerRepository _trainerRepository;
 
-        public TrainerCreatedEventHandler(IEmailSender emailSender , ITrainerRepository trainerRepository)
+        public TrainerCreatedEventHandler(IEmailSender emailSender)
         {
             _emailSender = emailSender;
-            _trainerRepository = trainerRepository;
         }
         public async Task Handle(TrainerCreatedEvent createdEvent , CancellationToken cancellationToken = default)
         {

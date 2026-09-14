@@ -31,7 +31,7 @@ namespace Gym.Domain.Members
         public static Member Create(string name , Email email)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullException("Name must be filled");
+                throw new ArgumentException("Name must be filled", nameof(name));
 
 
             var member = new Member(Guid.NewGuid() , name , email);
@@ -42,7 +42,11 @@ namespace Gym.Domain.Members
         }
 
 
-        public decimal PurchaseSubscription(int durationMonths, Price price)
+        public bool HasActiveSubscription()
+            => _subscriptions.Any(s => s.IsActive);
+
+
+        public void PurchaseSubscription(int durationMonths, Price monthlyPrice)
         {
             if (durationMonths < 1)
                 throw new ArgumentException("Duration of subscription must be greater than 0");
@@ -53,13 +57,13 @@ namespace Gym.Domain.Members
             if (_subscriptions.Any(s => s.IsActive))
                 throw new InvalidOperationException("Member already has an active subscription.");
 
-            var newSub = new Subscription(Guid.NewGuid(), durationMonths, price);
+            var totalPrice = new Price(monthlyPrice.Value * durationMonths, monthlyPrice.Currency);
+
+            var newSub = new Subscription(Guid.NewGuid(), durationMonths, totalPrice);
 
             _subscriptions.Add(newSub);
 
             AddDomainEvent(new SubscriptionPurchasedEvent(this.Id, newSub.Id , newSub.StartDate , newSub.EndDate));
-
-            return newSub.Price.Value * durationMonths;
         }
 
         public void UpdateBodyMetrics(decimal height, decimal weight, int age, string goal)

@@ -35,8 +35,8 @@ namespace Gym.Application.Trainers.Queries
         
                 SELECT 
                     COUNT(*) AS TotalSessionsCompleted,
-                    COALESCE(SUM(""Price_Value""), 0) AS TotalEarned,
-                    COUNT(DISTINCT ""ClientId"") AS ActiveClientsCount
+                    COALESCE(SUM(""FixedPrice_Value""), 0) AS TotalEarned,
+                    COUNT(DISTINCT ""MemberId"") AS ActiveClientsCount
                 FROM ""Bookings""
                 WHERE ""TrainerId"" = @Id AND ""Status"" = 'Completed';
 
@@ -47,7 +47,7 @@ namespace Gym.Application.Trainers.Queries
                     b.""Status"", 
                     u.""Name"" AS ClientName
                 FROM ""Bookings"" b
-                INNER JOIN ""Users"" u ON b.""ClientId"" = u.""Id""
+                INNER JOIN ""Members"" u ON b.""MemberId"" = u.""Id""
                 WHERE b.""TrainerId"" = @Id
                 ORDER BY b.""StartTime"" DESC
                 LIMIT 10;";

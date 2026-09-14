@@ -26,11 +26,11 @@ namespace Gym.Application.Trainers.Queries
 
             var sql = @"SELECT ""Id"", 
                     ""Name"",
-                    ""Email_Value"" AS Email,
+                    ""Email"" AS Email,
                     ""Specialization"",
                     ""SessionPrice_Value"" AS Price, 
                     ""SessionPrice_Currency"" AS Currency
-            FROM ""Trainers"" WHERE Id = @Id";
+            FROM ""Trainers"" WHERE ""Id"" = @Id";
 
             var command = new CommandDefinition(sql, new { Id = query.Id},cancellationToken:cancellationToken);
 

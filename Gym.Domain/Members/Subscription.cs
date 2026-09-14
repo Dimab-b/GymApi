@@ -20,12 +20,12 @@ namespace Gym.Domain.Members
         private Subscription() { }
 
 
-        internal Subscription(Guid id, int durationMonths, Price price)
+        internal Subscription(Guid id, int durationMonths, Price totalPrice)
         {
             Id = id;
             StartDate = DateTime.UtcNow;
             EndDate = StartDate.AddMonths(durationMonths);
-            Price = price;
+            Price = totalPrice;
         }
 
         internal void Extend(int extraMonths)

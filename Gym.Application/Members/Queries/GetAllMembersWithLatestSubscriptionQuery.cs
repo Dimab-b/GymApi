@@ -1,12 +1,12 @@
-﻿using Gym.Application.Members.Dto_s;
+﻿using Dapper;
+using Gym.Application.Members.Dto_s;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using Dapper;
-using System.ComponentModel.Design;
 
 namespace Gym.Application.Members.Queries
 {
@@ -26,38 +26,54 @@ namespace Gym.Application.Members.Queries
             await using var connection = new NpgsqlConnection(_connection);
 
 
-            var sql = @"SELECT m.*, sub.*
-            FROM ""Members"" m
-            LEFT JOIN (
-            SELECT ""Id"", ""MemberId"", ""StartDate"", ""EndDate"", ""PriceAmount"", ""PriceCurrency"",
-            ROW_NUMBER() OVER (PARTITION BY ""MemberId"" ORDER BY ""StartDate"" DESC) as rn
-            FROM ""Subscriptions""
-            )sub ON m.""Id"" = sub.""MemberId"" AND sub.rn = 1
-            ";
+            var sql = @"
+            SELECT ""Id"", ""Name"", ""Email"", ""IsBanned"", ""HeightCm"", ""WeightKg"", ""Age"", ""Goal""
+            FROM ""Members""
+            ORDER BY ""Name"";
 
+            SELECT DISTINCT ON (s.""MemberId"")
+                s.""Id"", s.""MemberId"", s.""StartDate"", s.""EndDate"", s.""PriceAmount"", s.""PriceCurrency"",
+                (CURRENT_TIMESTAMP >= s.""StartDate"" AND CURRENT_TIMESTAMP <= s.""EndDate"") AS ""IsActive""
+            FROM ""Subscriptions"" s
+            ORDER BY s.""MemberId"", s.""StartDate"" DESC;";
 
-            var query = await connection.QueryAsync<MemberReadDto, SubscriptionReadDto, MemberReadDto>(
-                sql,
-                (member, subscription) =>
+            using var multi = await connection.QueryMultipleAsync(new CommandDefinition(sql, cancellationToken: cancellationToken));
+
+            var members = (await multi.ReadAsync<MemberReadDto>()).ToList();
+            var latestSubscriptions = (await multi.ReadAsync<SubscriptionRow>()).ToList();
+
+            var subscriptionsByMember = latestSubscriptions
+                .GroupBy(s => s.MemberId)
+                .ToDictionary(g => g.Key, g => g.First());
+
+            foreach (var member in members)
+            {
+                if (!subscriptionsByMember.TryGetValue(member.Id, out var subscription))
+                    continue;
+
+                member.Subscriptions.Add(new SubscriptionReadDto
                 {
-         
-                    if (subscription != null)
-                        {
-                            member.Subscriptions.Add(subscription);
-                         }
-                    return member;
-                },
-                param: null,      
-                splitOn: "Id"
+                    Id = subscription.Id,
+                    StartDate = subscription.StartDate,
+                    EndDate = subscription.EndDate,
+                    PriceAmount = subscription.PriceAmount,
+                    PriceCurrency = subscription.PriceCurrency,
+                    IsActive = subscription.IsActive
+                });
+            }
 
-            );
+            return members;
+        }
 
-            return query;
-
-
-
-            
-
+        private sealed class SubscriptionRow
+        {
+            public Guid Id { get; set; }
+            public Guid MemberId { get; set; }
+            public DateTime StartDate { get; set; }
+            public DateTime EndDate { get; set; }
+            public decimal PriceAmount { get; set; }
+            public string PriceCurrency { get; set; } = null!;
+            public bool IsActive { get; set; }
         }
     }
 }

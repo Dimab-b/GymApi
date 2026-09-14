@@ -1,5 +1,4 @@
-﻿using FluentEmail.Core;
-using Gym.Domain.Common;
+﻿using Gym.Domain.Common;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -9,5 +8,6 @@ namespace Gym.Domain.Trainers
 {
     public record TrainerCreatedEvent(string Name , string Email) : IDomainEvent;
     public record TrainerDeactivatedEvent(Guid TrainerId) : IDomainEvent;
+    public record TrainerChangedPrice(Guid TrainerId) : IDomainEvent;
     
 }

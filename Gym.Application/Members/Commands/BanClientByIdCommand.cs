@@ -22,7 +22,7 @@ namespace Gym.Application.Members.Commands
 
         public async Task<bool> Handle(BanClientByIdCommand command , CancellationToken cancellationToken = default)
         {
-            var member = await _memberRepository.GetByIdAsync(command.Id);
+            var member = await _memberRepository.GetByIdAsync(command.Id, cancellationToken);
 
             if (member == null)
             {
