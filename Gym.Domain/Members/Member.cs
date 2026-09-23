@@ -36,7 +36,7 @@ namespace Gym.Domain.Members
 
             var member = new Member(Guid.NewGuid() , name , email);
 
-            member.AddDomainEvent(new MemberCreatedEvent(member.Id, email.Value));
+            member.AddDomainEvent(new MemberCreatedDomainEvent(email.Value));
 
             return member;
         }
@@ -63,7 +63,7 @@ namespace Gym.Domain.Members
 
             _subscriptions.Add(newSub);
 
-            AddDomainEvent(new SubscriptionPurchasedEvent(this.Id, newSub.Id , newSub.StartDate , newSub.EndDate));
+            AddDomainEvent(new SubscriptionPurchasedDomainEvent(this.Id, newSub.Id , newSub.StartDate , newSub.EndDate));
         }
 
         public void UpdateBodyMetrics(decimal height, decimal weight, int age, string goal)
@@ -74,7 +74,7 @@ namespace Gym.Domain.Members
             }
             BodyMetrics = new BodyMetrics(height, weight, age, goal);
 
-            AddDomainEvent(new BodyMetricsUpdatedEvent(Id, weight, height));
+            AddDomainEvent(new BodyMetricsUpdatedDomainEvent(Id, weight, height));
         }
 
 

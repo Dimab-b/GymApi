@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Gym.Application.Members.Events
 {
-    public class SubscriptionPurchasedEventHandler : INotificationHandler<SubscriptionPurchasedEvent>
+    public class SubscriptionPurchasedEventHandler : INotificationHandler<SubscriptionPurchasedDomainEvent>
     {
         private readonly IEmailSender _emailSender;
         private readonly IMemberRepository _memberRepository;
@@ -18,7 +18,7 @@ namespace Gym.Application.Members.Events
             _memberRepository = memberRepository;
         }
 
-        public async Task Handle(SubscriptionPurchasedEvent purchasedEvent, CancellationToken cancellationToken = default)
+        public async Task Handle(SubscriptionPurchasedDomainEvent purchasedEvent, CancellationToken cancellationToken = default)
         {
             var member = await _memberRepository.GetByIdAsync(purchasedEvent.MemberId , cancellationToken) ?? throw new ArgumentException("No member found"); 
 
