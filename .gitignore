@@ -2,3 +2,6 @@
 secrets.json
 obj/
 bin/
+
+# Local environment (docker compose)
+.env

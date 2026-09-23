@@ -2,6 +2,13 @@
   <Folder Name="/Элементы решения/">
     <File Path=".gitignore" />
   </Folder>
+  <Folder Name="/Docker/">
+    <File Path="Dockerfile" />
+    <File Path="docker-compose.yml" />
+    <File Path=".dockerignore" />
+    <File Path=".env" />
+    <File Path=".env.example" />
+  </Folder>
   <Project Path="Gym.Application/Gym.Application.csproj">
     <BuildDependency Project="Gym.Domain/Gym.Domain.csproj" />
   </Project>
