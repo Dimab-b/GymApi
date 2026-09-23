@@ -14,6 +14,8 @@ namespace Gym.Infrastructure.Persistence.Configurations
           
             builder.HasKey(m => m.Id);
 
+            builder.Property(m => m.Id).ValueGeneratedNever();
+
             builder.Property(m => m.Name)
                 .IsRequired()
                 .HasMaxLength(100);

@@ -10,6 +10,8 @@ public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
     {
         builder.HasKey(s => s.Id);
 
+        builder.Property(s => s.Id).ValueGeneratedNever();
+
         builder.OwnsOne(s => s.Price, priceBuilder =>
         {
             priceBuilder.Property(p => p.Value)
