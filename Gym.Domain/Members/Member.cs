@@ -105,7 +105,6 @@ namespace Gym.Domain.Members
                 sub.Cancel();
             }
 
-            AddDomainEvent(new MemberBannedEvent(this.Id));
         }
     }
 }

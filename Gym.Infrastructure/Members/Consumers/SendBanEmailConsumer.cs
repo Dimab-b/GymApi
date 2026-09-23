@@ -1,26 +1,28 @@
-﻿using Gym.Application.Common.Interfaces;
+﻿using Gym.Application.Common.Events;
+using Gym.Application.Common.Interfaces;
 using Gym.Domain.Members;
-using MediatR;
+using MassTransit;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Gym.Application.Members.Events
+namespace Gym.Infrastructure.Members.Consumers
 {
-    public class MemberBannedEventHandler : INotificationHandler<MemberBannedEvent>
+    public class SendBanEmailConsumer : IConsumer<MemberBannedEvent>
     {
         private readonly IEmailSender _emailSender;
         private readonly IMemberRepository _memberRepository;
 
-        public MemberBannedEventHandler(IEmailSender emailSender , IMemberRepository memberRepository)
+        public SendBanEmailConsumer(IEmailSender emailSender, IMemberRepository memberRepository)
         {
             _emailSender = emailSender;
             _memberRepository = memberRepository;
         }
 
-        public async Task Handle(MemberBannedEvent bannedEvent , CancellationToken cancellationToken = default)
+        public async Task Consume(ConsumeContext<MemberBannedEvent> context)
         {
-            var member = await _memberRepository.GetByIdAsync(bannedEvent.MemberId) ?? throw new ArgumentException("No member found");
+            var member = await _memberRepository.GetByIdAsync(context.Message.MemberId, context.CancellationToken)
+                ?? throw new ArgumentException("No member found");
 
             var sb = new StringBuilder();
             sb.AppendLine($"Hello dear client {member.Name}");
