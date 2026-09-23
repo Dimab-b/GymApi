@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Gym.Infrastructure.Members.Consumers
 {
-    public class SendBanEmailConsumer : IConsumer<MemberBannedEvent>
+    public class SendBanEmailConsumer : IConsumer<MemberBannedIntegrationEvent>
     {
         private readonly IEmailSender _emailSender;
         private readonly IMemberRepository _memberRepository;
@@ -19,7 +19,7 @@ namespace Gym.Infrastructure.Members.Consumers
             _memberRepository = memberRepository;
         }
 
-        public async Task Consume(ConsumeContext<MemberBannedEvent> context)
+        public async Task Consume(ConsumeContext<MemberBannedIntegrationEvent> context)
         {
             var member = await _memberRepository.GetByIdAsync(context.Message.MemberId, context.CancellationToken)
                 ?? throw new ArgumentException("No member found");
