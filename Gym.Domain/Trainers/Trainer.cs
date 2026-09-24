@@ -37,7 +37,7 @@ namespace Gym.Domain.Trainers
 
             var trainer = new Trainer(Guid.NewGuid(), name, email, specialization, sessionPrice);
 
-            trainer.AddDomainEvent(new TrainerCreatedEvent(trainer.Name , trainer.Email.Value));
+            trainer.AddDomainEvent(new TrainerCreatedDomainEvent(trainer.Name , trainer.Email.Value));
 
             return trainer;
         }
@@ -48,7 +48,7 @@ namespace Gym.Domain.Trainers
                 throw new ArgumentException("Inactive trainer can't change price");
             this.SessionPrice = price;
 
-            this.AddDomainEvent(new TrainerChangedPrice(this.Id));
+            this.AddDomainEvent(new TrainerChangedPriceDomainEvent(this.Id));
         }
 
 
@@ -59,7 +59,7 @@ namespace Gym.Domain.Trainers
 
             this.IsActive = false;
 
-            AddDomainEvent(new TrainerDeactivatedEvent(this.Id));
+            AddDomainEvent(new TrainerDeactivatedDomainEvent(this.Id));
         }
 
 
