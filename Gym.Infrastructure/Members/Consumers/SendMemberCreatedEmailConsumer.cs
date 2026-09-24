@@ -1,4 +1,4 @@
-﻿using Gym.Application.Common.Events;
+﻿using Gym.Application.Common.Events.Members;
 using Gym.Application.Common.Interfaces;
 using MassTransit;
 using System;
@@ -8,10 +8,10 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Gym.Infrastructure.Members.Consumers
 {
-    public class SendCreatedEmailConsumer : IConsumer<MemberCreatedIntegrationEvent>
+    public class SendMemberCreatedEmailConsumer : IConsumer<MemberCreatedIntegrationEvent>
     {
         private readonly IEmailSender _emailSender;
-        public SendCreatedEmailConsumer (IEmailSender emailSender) => _emailSender = emailSender;
+        public SendMemberCreatedEmailConsumer (IEmailSender emailSender) => _emailSender = emailSender;
 
         public async Task Consume(ConsumeContext<MemberCreatedIntegrationEvent> context)
         {

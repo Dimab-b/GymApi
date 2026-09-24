@@ -1,4 +1,4 @@
-﻿using Gym.Application.Common.Events;
+﻿using Gym.Application.Common.Events.Members;
 using Gym.Application.Common.Interfaces;
 using Gym.Domain.Members;
 using MassTransit;

@@ -6,8 +6,8 @@ using System.Text;
 
 namespace Gym.Domain.Trainers
 {
-    public record TrainerCreatedEvent(string Name , string Email) : IDomainEvent;
-    public record TrainerDeactivatedEvent(Guid TrainerId) : IDomainEvent;
-    public record TrainerChangedPrice(Guid TrainerId) : IDomainEvent;
+    public record TrainerCreatedDomainEvent(string Name , string Email) : IDomainEvent;
+    public record TrainerDeactivatedDomainEvent(Guid TrainerId) : IDomainEvent;
+    public record TrainerChangedPriceDomainEvent(Guid TrainerId) : IDomainEvent;
     
 }
