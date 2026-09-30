@@ -67,7 +67,25 @@ namespace Gym.Infrastructure
                         h.Password(rabbitPassword);
                     });
 
-                    cfg.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
+                    cfg.UseMessageRetry(r =>
+                    {
+                        r.Exponential(
+                            retryLimit: 5,
+                            minInterval: TimeSpan.FromSeconds(1),
+                            maxInterval: TimeSpan.FromSeconds(30),
+                            intervalDelta: TimeSpan.FromSeconds(2)
+                        );
+                        r.Ignore<ArgumentNullException>();
+                        r.Ignore<InvalidOperationException>();
+                    });
+
+                    cfg.UseCircuitBreaker(cb =>
+                    {
+                        cb.TrackingPeriod = TimeSpan.FromMinutes(1);
+                        cb.TripThreshold = 15; 
+                        cb.ActiveThreshold = 10;
+                        cb.ResetInterval = TimeSpan.FromMinutes(5); 
+                    });
                     cfg.ConfigureEndpoints(context);
                 });
             });
