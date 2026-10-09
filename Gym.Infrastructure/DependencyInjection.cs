@@ -64,6 +64,18 @@ namespace Gym.Infrastructure
             {
                 x.AddConsumers(Assembly.GetExecutingAssembly());
 
+                x.AddEntityFrameworkOutbox<AppDbContext>(o =>
+                {
+                    o.UsePostgres();
+                    o.UseBusOutbox();
+                });
+
+                // Consumer Outbox (inbox) — дедуплікація отриманих повідомлень по MessageId
+                x.AddConfigureEndpointsCallback((context, name, cfg) =>
+                {
+                    cfg.UseEntityFrameworkOutbox<AppDbContext>(context);
+                });
+
                 x.UsingRabbitMq((context, cfg) =>
                 {
                     cfg.Host(rabbitHost, rabbitVirtualHost, h =>

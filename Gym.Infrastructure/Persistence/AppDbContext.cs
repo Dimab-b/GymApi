@@ -2,6 +2,7 @@
 using Gym.Domain.Common;
 using Gym.Domain.Members;
 using Gym.Domain.Trainers;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gym.Infrastructure.Persistence
@@ -20,6 +21,10 @@ namespace Gym.Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+
+            modelBuilder.AddInboxStateEntity();
+            modelBuilder.AddOutboxMessageEntity();
+            modelBuilder.AddOutboxStateEntity();
         }
     }
 }
