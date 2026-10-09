@@ -7,6 +7,7 @@ using Gym.Infrastructure.Bookings;
 using Gym.Infrastructure.Common.Services;
 using Gym.Infrastructure.Members;
 using Gym.Infrastructure.Persistence;
+using Gym.Infrastructure.Persistence.Interceptors;
 using Gym.Infrastructure.Trainers;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +27,11 @@ namespace Gym.Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString , x => x.MigrationsAssembly("Gym.Infrastructure")));
+
+            services.AddScoped<DispatchDomainEventsInterceptor>();
+            services.AddDbContext<AppDbContext>((sp, options) =>
+                options.UseNpgsql(connectionString, x => x.MigrationsAssembly("Gym.Infrastructure"))
+                       .AddInterceptors(sp.GetRequiredService<DispatchDomainEventsInterceptor>()));
 
             services.AddScoped<IMemberRepository, MemberRepository>();
             services.AddScoped<ITrainerRepository, TrainerRepository>();
