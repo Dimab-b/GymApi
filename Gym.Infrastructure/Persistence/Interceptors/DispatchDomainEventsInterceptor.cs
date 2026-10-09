@@ -14,9 +14,9 @@ namespace Gym.Infrastructure.Persistence.Interceptors
             _publisher = publisher;
         }
 
-        public override async ValueTask<int> SavedChangesAsync(
-            SaveChangesCompletedEventData eventData,
-            int result,
+        public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
+            DbContextEventData eventData,
+            InterceptionResult<int> result,
             CancellationToken cancellationToken = default)
         {
             if (eventData.Context is not null)
@@ -24,7 +24,7 @@ namespace Gym.Infrastructure.Persistence.Interceptors
                 await DispatchDomainEventsAsync(eventData.Context, cancellationToken);
             }
 
-            return await base.SavedChangesAsync(eventData, result, cancellationToken);
+            return await base.SavingChangesAsync(eventData, result, cancellationToken);
         }
 
         private async Task DispatchDomainEventsAsync(DbContext context, CancellationToken cancellationToken)
