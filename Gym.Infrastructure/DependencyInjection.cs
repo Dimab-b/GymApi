@@ -68,6 +68,7 @@ namespace Gym.Infrastructure
                 {
                     o.UsePostgres();
                     o.UseBusOutbox();
+                    o.QueryDelay = TimeSpan.FromSeconds(1); o.QueryDelay = TimeSpan.FromSeconds(1);
                 });
 
                 x.AddConfigureEndpointsCallback((context, name, cfg) =>
