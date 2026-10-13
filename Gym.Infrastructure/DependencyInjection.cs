@@ -70,7 +70,6 @@ namespace Gym.Infrastructure
                     o.UseBusOutbox();
                 });
 
-                // Consumer Outbox (inbox) — дедуплікація отриманих повідомлень по MessageId
                 x.AddConfigureEndpointsCallback((context, name, cfg) =>
                 {
                     cfg.UseEntityFrameworkOutbox<AppDbContext>(context);
