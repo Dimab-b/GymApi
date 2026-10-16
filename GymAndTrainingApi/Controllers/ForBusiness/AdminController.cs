@@ -1,4 +1,6 @@
 ﻿using Gym.Application.Bookings.Commands;
+using Gym.Application.Bookings.Dto_s;
+using Gym.Application.Bookings.Queries;
 using Gym.Application.Common;
 using Gym.Application.Members.Commands;
 using Gym.Application.Members.Dto_s;
@@ -103,6 +105,14 @@ namespace Gym.Api.Controllers.ForBusiness
             await _mediator.Send(command, cancellationToken);
 
             return NoContent();
+        }
+
+        [HttpGet("bookings")]
+        public async Task<ActionResult<PagedResult<BookingAdminDto>>> GetBookings([FromQuery] GetBookingsAdminQuery query , CancellationToken cancellationToken = default)
+        {
+            var bookings = await _mediator.Send(query , cancellationToken);
+
+            return Ok(bookings);
         }
 
         [HttpGet("trainers")]
