@@ -101,7 +101,7 @@ namespace Gym.Api.Controllers.ForClient
             return Ok(await _mediator.Send(command, cancellationToken));
         }
         [HttpGet("{id:Guid}/bookings")]
-        public async Task<ActionResult<PagedResult<BookingReadDto>>> GetMyBookings(Guid id, GetMyBookingsRequest request, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<PagedResult<BookingReadDto>>> GetMyBookings(Guid id, [FromQuery] GetMyBookingsRequest request, CancellationToken cancellationToken = default)
         {
             var command = new GetMyBookingsQuery(id, request.Status, request.PageNumber, request.PageSize);
             return Ok(await _mediator.Send(command, cancellationToken));
