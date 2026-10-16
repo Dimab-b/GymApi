@@ -1,4 +1,5 @@
-﻿using Gym.Application.Common;
+﻿using Gym.Application.Bookings.Commands;
+using Gym.Application.Common;
 using Gym.Application.Members.Commands;
 using Gym.Application.Members.Dto_s;
 using Gym.Application.Members.Queries;
@@ -90,6 +91,16 @@ namespace Gym.Api.Controllers.ForBusiness
             var command = new UpdateTrainerProfileCommand(id , request.Name , request.Specialization);
 
             await _mediator.Send(command ,cancellationToken);
+
+            return NoContent();
+        }
+
+        [HttpPatch("bookings/{bookingId:guid}/complete")]
+        public async Task<IActionResult> CompleteBooking(Guid bookingId, CancellationToken cancellationToken = default)
+        {
+            var command = new CompleteBookingCommand(bookingId);
+
+            await _mediator.Send(command, cancellationToken);
 
             return NoContent();
         }

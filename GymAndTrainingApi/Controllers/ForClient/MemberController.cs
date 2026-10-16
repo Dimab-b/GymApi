@@ -82,29 +82,38 @@ namespace Gym.Api.Controllers.ForClient
         }
 
         [HttpGet("trainers/{id:Guid}")]
-        public async Task<ActionResult<TrainerReadDto>> GetTrainerProfile(Guid id , CancellationToken cancellationToken = default)
+        public async Task<ActionResult<TrainerReadDto>> GetTrainerProfile(Guid id, CancellationToken cancellationToken = default)
         {
-            var res = await _mediator.Send(new GetTrainerProfileQuery(id) , cancellationToken);
+            var res = await _mediator.Send(new GetTrainerProfileQuery(id), cancellationToken);
             return Ok(res);
         }
 
         [HttpGet("trainers/{id:Guid}/availability")]
-        public async Task<ActionResult<List<AvailableSlotDto>>> GetTrainerAvailability(Guid id , [FromQuery]DateOnly Date , CancellationToken cancellationToken = default)
+        public async Task<ActionResult<List<AvailableSlotDto>>> GetTrainerAvailability(Guid id, [FromQuery] DateOnly Date, CancellationToken cancellationToken = default)
         {
-            var query = new GetTrainerAvailabilityQuery(id , Date);
-            return Ok(await _mediator.Send(query , cancellationToken));
+            var query = new GetTrainerAvailabilityQuery(id, Date);
+            return Ok(await _mediator.Send(query, cancellationToken));
         }
         [HttpPost("{id:Guid}/booking")]
-        public async Task<ActionResult<Guid>> CreateBooking(Guid id , [FromBody] CreateBookingRequest request , CancellationToken cancellationToken = default)
+        public async Task<ActionResult<Guid>> CreateBooking(Guid id, [FromBody] CreateBookingRequest request, CancellationToken cancellationToken = default)
         {
-            var command = new CreateBookingCommand(id,request.TrainerId , request.StartTime);
-            return Ok(await _mediator.Send(command , cancellationToken));
+            var command = new CreateBookingCommand(id, request.TrainerId, request.StartTime);
+            return Ok(await _mediator.Send(command, cancellationToken));
         }
         [HttpGet("{id:Guid}/bookings")]
-        public async Task<ActionResult<PagedResult<BookingReadDto>>> GetMyBookings(Guid id , GetMyBookingsRequest request , CancellationToken cancellationToken = default)
+        public async Task<ActionResult<PagedResult<BookingReadDto>>> GetMyBookings(Guid id, GetMyBookingsRequest request, CancellationToken cancellationToken = default)
         {
-            var command = new GetMyBookingsQuery(id , request.Status , request.PageNumber , request.PageSize);
+            var command = new GetMyBookingsQuery(id, request.Status, request.PageNumber, request.PageSize);
             return Ok(await _mediator.Send(command, cancellationToken));
+        }
+        [HttpPatch("{id:Guid}/bookings/{bookingId:Guid}/cancel")]
+        public async Task<IActionResult> CancelBooking(Guid id , Guid bookingId , CancellationToken cancellationToken = default)
+        {
+            var command = new CancelBookingCommand(id, bookingId);
+
+            await _mediator.Send(command , cancellationToken);
+
+            return NoContent();
         }
 
 
