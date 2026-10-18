@@ -34,6 +34,14 @@ namespace Gym.Infrastructure.Bookings
                  && x.Status == BookingStatus.Scheduled
                  && x.StartTime >= DateTime.UtcNow).ToListAsync(cancellationToken);
         }
+        public async Task<IReadOnlyList<SessionBooking>> GetScheduledByMemberIdAsync(Guid memberId, CancellationToken cancellationToken = default)
+        {
+            return await _context.Bookings
+                .Where(b => b.MemberId == memberId
+                    && b.Status == BookingStatus.Scheduled
+                    && b.StartTime >= DateTime.UtcNow)
+                .ToListAsync(cancellationToken);
+        }
         public async Task<bool> HasOverlapAsync(Guid trainerId, DateTime startTime, DateTime endTime, CancellationToken cancellationToken = default)
         {
             return await _context.Bookings.AnyAsync(b =>

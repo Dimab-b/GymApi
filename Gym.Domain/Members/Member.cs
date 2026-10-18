@@ -63,7 +63,7 @@ namespace Gym.Domain.Members
 
             _subscriptions.Add(newSub);
 
-            AddDomainEvent(new SubscriptionPurchasedDomainEvent(this.Id, newSub.Id , newSub.StartDate , newSub.EndDate));
+            AddDomainEvent(new SubscriptionPurchasedDomainEvent(this.Id, newSub.Id , newSub.StartDate , newSub.EndDate , Name , Email.Value));
         }
 
         public void UpdateBodyMetrics(decimal height, decimal weight, int age, string goal)
@@ -80,6 +80,9 @@ namespace Gym.Domain.Members
 
         public void ExtendActiveSubscription(int extraMonths)
         {
+            if (extraMonths < 1)
+                throw new ArgumentOutOfRangeException(nameof(extraMonths), "Extension must be at least 1 month.");
+
             if (IsBanned)
                 throw new InvalidOperationException("Banned members cannot extend subscription");
 
@@ -94,6 +97,9 @@ namespace Gym.Domain.Members
 
         public void BanUser()
         {
+            if (IsBanned)
+                return;
+
             this.IsBanned = true;
 
 
@@ -105,7 +111,7 @@ namespace Gym.Domain.Members
                 sub.Cancel();
             }
 
-            AddDomainEvent(new MemberBannedDomainEvent(this.Id));
+            AddDomainEvent(new MemberBannedDomainEvent(this.Id, Name, Email.Value));
         }
     }
 }

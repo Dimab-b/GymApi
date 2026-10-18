@@ -18,6 +18,6 @@ namespace Gym.Application.Members.Events
         }
 
         public Task Handle(MemberBannedDomainEvent notification, CancellationToken cancellationToken)
-            => _publisher.PublishAsync(new MemberBannedIntegrationEvent(notification.MemberId), cancellationToken);
+            => _publisher.PublishAsync(new MemberBannedIntegrationEvent(notification.MemberId, notification.Name, notification.Email), cancellationToken);
     }
 }

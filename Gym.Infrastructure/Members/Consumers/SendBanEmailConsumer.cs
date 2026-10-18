@@ -1,6 +1,5 @@
 ﻿using Gym.Application.Common.Events.Members;
 using Gym.Application.Common.Interfaces;
-using Gym.Domain.Members;
 using MassTransit;
 using System;
 using System.Collections.Generic;
@@ -11,21 +10,18 @@ namespace Gym.Infrastructure.Members.Consumers
     public class SendBanEmailConsumer : IConsumer<MemberBannedIntegrationEvent>
     {
         private readonly IEmailSender _emailSender;
-        private readonly IMemberRepository _memberRepository;
 
-        public SendBanEmailConsumer(IEmailSender emailSender, IMemberRepository memberRepository)
+        public SendBanEmailConsumer(IEmailSender emailSender)
         {
             _emailSender = emailSender;
-            _memberRepository = memberRepository;
         }
 
         public async Task Consume(ConsumeContext<MemberBannedIntegrationEvent> context)
         {
-            var member = await _memberRepository.GetByIdAsync(context.Message.MemberId, context.CancellationToken)
-                ?? throw new ArgumentException("No member found");
+            var message = context.Message;
 
             var sb = new StringBuilder();
-            sb.AppendLine($"Hello dear client {member.Name}");
+            sb.AppendLine($"Hello dear client {message.Name}");
 
             sb.AppendLine("You are banned by Admin of the Gym");
 
@@ -33,7 +29,7 @@ namespace Gym.Infrastructure.Members.Consumers
 
             string body = sb.ToString();
 
-            await _emailSender.SendAsync(member.Email.Value, "Banned by Admin", body);
+            await _emailSender.SendAsync(message.Email, "Banned by Admin", body);
         }
     }
 }

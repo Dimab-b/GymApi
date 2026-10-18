@@ -4,5 +4,5 @@ using System.Text;
 
 namespace Gym.Application.Common.Events.Members
 {
-    public record SubscriptionPurchasedIntegrationEvent(Guid MemberId, Guid SubscriptionId, DateTime StartDate, DateTime EndDate);
+    public record SubscriptionPurchasedIntegrationEvent(Guid MemberId, Guid SubscriptionId, DateTime StartDate, DateTime EndDate, string Name, string Email);
 }

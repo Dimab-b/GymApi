@@ -1,4 +1,4 @@
-﻿using Gym.Domain.Members;
+using Gym.Domain.Members;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,6 +11,7 @@ public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
         builder.HasKey(s => s.Id);
 
         builder.Property(s => s.Id).ValueGeneratedNever();
+        builder.Property<uint>("xmin").IsRowVersion();
 
         builder.OwnsOne(s => s.Price, priceBuilder =>
         {

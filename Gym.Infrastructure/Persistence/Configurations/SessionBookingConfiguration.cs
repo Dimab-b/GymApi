@@ -1,4 +1,4 @@
-﻿using Gym.Domain.Bookings;
+using Gym.Domain.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -16,6 +16,7 @@ namespace Gym.Infrastructure.Persistence.Configurations
             builder.HasKey(b => b.Id);
 
             builder.Property(b => b.Id).ValueGeneratedNever();
+            builder.Property<uint>("xmin").IsRowVersion();
 
             builder.Property(b => b.MemberId)
                 .IsRequired();

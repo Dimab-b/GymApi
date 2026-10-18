@@ -19,6 +19,6 @@ namespace Gym.Application.Members.Events
         }
 
         public Task Handle(SubscriptionPurchasedDomainEvent notification, CancellationToken cancellationToken = default) =>
-             _publisher.PublishAsync(new SubscriptionPurchasedIntegrationEvent(notification.MemberId , notification.SubscriptionId , notification.StartDate , notification.EndDate), cancellationToken);
+             _publisher.PublishAsync(new SubscriptionPurchasedIntegrationEvent(notification.MemberId , notification.SubscriptionId , notification.StartDate , notification.EndDate , notification.Name , notification.Email), cancellationToken);
     }
 }

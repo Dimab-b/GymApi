@@ -1,4 +1,4 @@
-﻿using Gym.Domain.Members;
+using Gym.Domain.Members;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -15,6 +15,7 @@ namespace Gym.Infrastructure.Persistence.Configurations
             builder.HasKey(m => m.Id);
 
             builder.Property(m => m.Id).ValueGeneratedNever();
+            builder.Property<uint>("xmin").IsRowVersion();
 
             builder.Property(m => m.Name)
                 .IsRequired()

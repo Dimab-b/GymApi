@@ -11,6 +11,7 @@ namespace Gym.Domain.Bookings
         void Add(SessionBooking booking);
         void Update(SessionBooking booking);
         Task<IEnumerable<SessionBooking>> GetByTrainerId(Guid TrainerId , CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<SessionBooking>> GetScheduledByMemberIdAsync(Guid memberId, CancellationToken cancellationToken = default);
         Task<bool> HasOverlapAsync(Guid trainerId, DateTime startTime, DateTime endTime, CancellationToken cancellationToken = default);
         Task<IReadOnlyList<SessionBooking>> GetExpiredScheduledAsync(DateTime nowUtc, CancellationToken cancellationToken = default);
     }
