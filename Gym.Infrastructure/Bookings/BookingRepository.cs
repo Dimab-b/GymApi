@@ -43,5 +43,11 @@ namespace Gym.Infrastructure.Bookings
         b.EndTime > startTime,
         cancellationToken);
         }
+        public async Task<IReadOnlyList<SessionBooking>> GetExpiredScheduledAsync(DateTime nowUtc, CancellationToken cancellationToken = default)
+        {
+            return await _context.Bookings
+                .Where(b => b.Status == BookingStatus.Scheduled && b.EndTime <= nowUtc)
+                .ToListAsync(cancellationToken);
+        }
     }
 }

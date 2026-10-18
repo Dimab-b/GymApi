@@ -3,12 +3,15 @@ using Gym.Domain.Bookings;
 using Gym.Domain.Common;
 using Gym.Domain.Members;
 using Gym.Domain.Trainers;
+using Gym.Infrastructure.BackgroundJobs;
 using Gym.Infrastructure.Bookings;
 using Gym.Infrastructure.Common.Services;
 using Gym.Infrastructure.Members;
 using Gym.Infrastructure.Persistence;
 using Gym.Infrastructure.Persistence.Interceptors;
 using Gym.Infrastructure.Trainers;
+using Hangfire;
+using Hangfire.PostgreSql;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -68,7 +71,7 @@ namespace Gym.Infrastructure
                 {
                     o.UsePostgres();
                     o.UseBusOutbox();
-                    o.QueryDelay = TimeSpan.FromSeconds(1); o.QueryDelay = TimeSpan.FromSeconds(1);
+                    o.QueryDelay = TimeSpan.FromSeconds(1);
                 });
 
                 x.AddConfigureEndpointsCallback((context, name, cfg) =>
@@ -106,6 +109,16 @@ namespace Gym.Infrastructure
                     cfg.ConfigureEndpoints(context);
                 });
             });
+
+            services.AddHangfire(cfg => cfg
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UsePostgreSqlStorage(options => options.UseNpgsqlConnection(connectionString)));
+
+            services.AddHangfireServer();
+            services.AddHostedService<RecurringJobsRegistrar>();
+
             return services;
         }
     }
