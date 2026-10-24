@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Элементы решения/">
     <File Path=".gitignore" />
+    <File Path="AGENTS.md" />
   </Folder>
   <Folder Name="/Docker/">
     <File Path="Dockerfile" />
