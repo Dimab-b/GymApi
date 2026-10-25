@@ -9,6 +9,7 @@ using Gym.Application.Trainers.Dto_s;
 using Gym.Application.Trainers.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Gym.Api.Controllers.ForClient
 {
@@ -107,9 +108,13 @@ namespace Gym.Api.Controllers.ForClient
             return Ok(await _mediator.Send(command, cancellationToken));
         }
         [HttpPatch("{id:Guid}/bookings/{bookingId:Guid}/cancel")]
-        public async Task<IActionResult> CancelBooking(Guid id , Guid bookingId , CancellationToken cancellationToken = default)
+        public async Task<IActionResult> CancelBooking(
+            Guid id,
+            Guid bookingId,
+            [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] CancelBookingRequest? request,
+            CancellationToken cancellationToken = default)
         {
-            var command = new CancelBookingCommand(id, bookingId);
+            var command = new CancelBookingCommand(id, bookingId, request?.Reason);
 
             await _mediator.Send(command , cancellationToken);
 
@@ -122,5 +127,6 @@ namespace Gym.Api.Controllers.ForClient
         public record UpdateBodyMetricsRequest(decimal Height, decimal Weight, int Age, string Goal);
         public record CreateBookingRequest(Guid TrainerId, DateTime StartTime);
         public record GetMyBookingsRequest(string? Status, int PageNumber, int PageSize);
+        public record CancelBookingRequest(string? Reason);
     }
 }

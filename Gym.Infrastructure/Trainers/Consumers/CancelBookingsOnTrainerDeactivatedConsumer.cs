@@ -18,7 +18,7 @@ namespace Gym.Infrastructure.Trainers.Consumers
             var sessions = await _bookingRepository.GetByTrainerId(context.Message.TrainerId, context.CancellationToken);
             foreach (var session in sessions)
             {
-                session.CancelBySystem();
+                session.CancelBySystem("Trainer deactivated");
             }
             await _uow.SaveChangesAsync(context.CancellationToken);
         }

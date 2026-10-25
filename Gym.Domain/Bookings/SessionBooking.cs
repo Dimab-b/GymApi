@@ -41,13 +41,19 @@ namespace Gym.Domain.Bookings
 
             var session = new SessionBooking(Guid.NewGuid() , memberId , trainerId , startTime , startTime.AddHours(1) , BookingStatus.Scheduled , price);
 
-            session.AddDomainEvent(new SessionScheduledEvent(session.Id , session.MemberId ,session.TrainerId, session.StartTime));
+            session.AddDomainEvent(new SessionScheduledDomainEvent(
+                session.Id,
+                session.MemberId,
+                session.TrainerId,
+                session.StartTime,
+                session.EndTime,
+                session.FixedTrainerPrice));
 
             return session;
         }
 
 
-        public void Cancel()
+        public void Cancel(string? reason = null)
         {
             if (this.Status == BookingStatus.Cancelled)
                 return;
@@ -58,9 +64,16 @@ namespace Gym.Domain.Bookings
 
             this.Status = BookingStatus.Cancelled;
 
-            this.AddDomainEvent(new SessionCancelledEvent(this.Id , this.MemberId , this.TrainerId));
+            var normalizedReason = string.IsNullOrWhiteSpace(reason) ? "Cancelled by member" : reason.Trim();
+
+            this.AddDomainEvent(new SessionCancelledDomainEvent(
+                this.Id,
+                this.MemberId,
+                this.TrainerId,
+                this.StartTime,
+                normalizedReason));
         }
-        public void CancelBySystem()
+        public void CancelBySystem(string reason)
         {
             if (this.Status == BookingStatus.Completed)
                 throw new InvalidOperationException("You cannot cancel the session that already has been completed");
@@ -68,7 +81,12 @@ namespace Gym.Domain.Bookings
                 return;
             this.Status = BookingStatus.Cancelled;
 
-            this.AddDomainEvent(new SessionCancelledEvent(this.Id, this.MemberId, this.TrainerId));
+            this.AddDomainEvent(new SessionCancelledDomainEvent(
+                this.Id,
+                this.MemberId,
+                this.TrainerId,
+                this.StartTime,
+                reason));
         }
 
         public void Complete()
@@ -80,6 +98,12 @@ namespace Gym.Domain.Bookings
             if (this.Status == BookingStatus.Completed)
                 return;
             this.Status = BookingStatus.Completed;
+
+            this.AddDomainEvent(new SessionCompletedDomainEvent(
+                this.Id,
+                this.MemberId,
+                this.TrainerId,
+                this.EndTime));
         }
     }
 }
