@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Gym.Application.Bookings.Commands
 {
-    public record CancelBookingCommand(Guid MemberId , Guid BookingId) : IRequest;
+    public record CancelBookingCommand(Guid MemberId , Guid BookingId , string? Reason = null) : IRequest;
     
     public class CancelBookingCommandHandler : IRequestHandler<CancelBookingCommand>
     {
@@ -27,7 +27,7 @@ namespace Gym.Application.Bookings.Commands
             if (booking.MemberId != command.MemberId)
                 throw new InvalidOperationException("You cannot cancel another member's booking.");
 
-            booking.Cancel();
+            booking.Cancel(command.Reason);
 
             await _uow.SaveChangesAsync(cancellationToken);
         }

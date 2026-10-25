@@ -26,7 +26,7 @@ namespace Gym.Infrastructure.Members.Consumers
                 context.CancellationToken);
 
             foreach (var booking in bookings)
-                booking.CancelBySystem();
+                booking.CancelBySystem("Member banned");
 
             await _uow.SaveChangesAsync(context.CancellationToken);
         }
