@@ -26,7 +26,7 @@ namespace Gym.Infrastructure.Bookings.Consumers
                 .AppendLine($"Reason: {message.Reason}")
                 .ToString();
 
-            await _emailSender.SendAsync(message.TrainerEmail, "Booking cancelled", body);
+            await _emailSender.SendAsync(message.TrainerEmail, "Booking cancelled", body, context.CancellationToken);
         }
     }
 }

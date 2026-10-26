@@ -19,7 +19,7 @@ namespace Gym.Infrastructure.Members.Consumers
             sb.AppendLine("Congratulations with creating account of our gym");
             sb.AppendLine("We look forward to long-term cooperation");
             string body = sb.ToString();
-            await _emailSender.SendAsync(context.Message.Email, "Your account is created", body);
+            await _emailSender.SendAsync(context.Message.Email, "Your account is created", body, context.CancellationToken);
         }
     }
 }

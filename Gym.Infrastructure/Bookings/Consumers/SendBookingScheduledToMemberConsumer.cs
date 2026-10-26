@@ -27,7 +27,7 @@ namespace Gym.Infrastructure.Bookings.Consumers
                 .AppendLine($"Price: {message.PriceAmount} {message.PriceCurrency}")
                 .ToString();
 
-            await _emailSender.SendAsync(message.MemberEmail, "Booking confirmed", body);
+            await _emailSender.SendAsync(message.MemberEmail, "Booking confirmed", body, context.CancellationToken);
         }
     }
 }

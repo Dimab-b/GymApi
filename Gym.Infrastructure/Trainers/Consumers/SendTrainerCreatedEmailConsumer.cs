@@ -19,7 +19,7 @@ namespace Gym.Infrastructure.Trainers.Consumers
             sb.AppendLine("Congratulations with joining to our gym");
             sb.AppendLine("We look forward to long-term cooperation");
             string body = sb.ToString();
-            await _emailSender.SendAsync(context.Message.Email, $"{context.Message.Name} , You You can acquire clients.", body);
+            await _emailSender.SendAsync(context.Message.Email, $"{context.Message.Name} , You You can acquire clients.", body, context.CancellationToken);
         }
     }
 }

@@ -18,8 +18,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Net.Mail;
 using System.Reflection;
 using System.Text;
 
@@ -42,20 +40,6 @@ namespace Gym.Infrastructure
             services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<AppDbContext>());
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddScoped<IIntegrationEventPublisher, MassTransitEventPublisher>();
-
-            var emailSettings = configuration.GetSection("EmailSettings");
-            var emailFrom = emailSettings["From"] ?? throw new InvalidOperationException("EmailSettings:From is not configured.");
-            var emailSmtpServer = emailSettings["SmtpServer"] ?? throw new InvalidOperationException("EmailSettings:SmtpServer is not configured.");
-            var emailPort = int.TryParse(emailSettings["Port"], out var parsedEmailPort) ? parsedEmailPort : 25;
-
-            var smtpClient = new SmtpClient(emailSmtpServer, emailPort)
-            {
-                EnableSsl = true,
-                Credentials = new NetworkCredential(emailSettings["Username"], emailSettings["Password"])
-            };
-
-            services.AddFluentEmail(emailFrom)
-                .AddSmtpSender(smtpClient);
 
             var rabbitMq = configuration.GetSection("RabbitMq");
             var rabbitHost = rabbitMq["Host"] ?? "localhost";
@@ -96,7 +80,6 @@ namespace Gym.Infrastructure
                             intervalDelta: TimeSpan.FromSeconds(2)
                         );
                         r.Ignore<ArgumentNullException>();
-                        r.Ignore<InvalidOperationException>();
                     });
 
                     cfg.UseCircuitBreaker(cb =>
