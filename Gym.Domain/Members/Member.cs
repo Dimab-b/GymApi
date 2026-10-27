@@ -46,7 +46,7 @@ namespace Gym.Domain.Members
             => _subscriptions.Any(s => s.IsActive);
 
 
-        public void PurchaseSubscription(int durationMonths, Price monthlyPrice)
+        public void PurchaseSubscription(string planCode, decimal pricePerMonth, string currency, int durationMonths, int? visitLimitPerMonth)
         {
             if (durationMonths < 1)
                 throw new ArgumentException("Duration of subscription must be greater than 0");
@@ -57,14 +57,17 @@ namespace Gym.Domain.Members
             if (_subscriptions.Any(s => s.IsActive))
                 throw new InvalidOperationException("Member already has an active subscription.");
 
-            var totalPrice = new Price(monthlyPrice.Value * durationMonths, monthlyPrice.Currency);
+            var totalPrice = new Price(pricePerMonth * durationMonths, currency);
 
-            var newSub = new Subscription(Guid.NewGuid(), durationMonths, totalPrice);
+            var newSub = new Subscription(Guid.NewGuid(), planCode, visitLimitPerMonth, durationMonths, totalPrice);
 
             _subscriptions.Add(newSub);
 
             AddDomainEvent(new SubscriptionPurchasedDomainEvent(this.Id, newSub.Id , newSub.StartDate , newSub.EndDate , Name , Email.Value));
         }
+
+        public void PurchaseSubscription(int durationMonths, Price monthlyPrice)
+            => PurchaseSubscription("legacy", monthlyPrice.Value, monthlyPrice.Currency, durationMonths, null);
 
         public void UpdateBodyMetrics(decimal height, decimal weight, int age, string goal)
         {

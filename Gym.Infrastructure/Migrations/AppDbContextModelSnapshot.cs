@@ -92,8 +92,16 @@ namespace Gym.Infrastructure.Migrations
                     b.Property<Guid>("MemberId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("PlanCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("VisitLimitPerMonth")
+                        .HasColumnType("integer");
 
                     b.Property<uint>("xmin")
                         .IsConcurrencyToken()
