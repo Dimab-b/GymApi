@@ -22,28 +22,24 @@ namespace Gym.Domain.Members
         private Subscription() { }
 
 
-        internal Subscription(Guid id, string planCode, int? visitLimitPerMonth, int durationMonths, Price totalPrice)
+        internal Subscription(Guid id, string planCode, int? visitLimitPerMonth, DateTime startDate, int durationMonths, Price totalPrice)
         {
             Id = id;
             PlanCode = planCode;
             VisitLimitPerMonth = visitLimitPerMonth;
-            StartDate = DateTime.UtcNow;
-            EndDate = StartDate.AddMonths(durationMonths);
+            StartDate = startDate;
+            EndDate = startDate.AddMonths(durationMonths);
             Price = totalPrice;
-        }
-
-        internal void Extend(int extraMonths)
-        {
-            EndDate = EndDate.AddMonths(extraMonths);
         }
 
         internal void Cancel()
         {
-            if (EndDate < DateTime.UtcNow)
+            var now = DateTime.UtcNow;
+
+            if (EndDate < now)
                 return;
 
-            
-            EndDate = DateTime.UtcNow;
+            EndDate = now > StartDate ? now : StartDate;
         }
     }
 }
