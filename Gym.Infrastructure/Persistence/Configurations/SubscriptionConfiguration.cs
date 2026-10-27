@@ -26,6 +26,12 @@ public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
                 .IsRequired();
         });
 
+        builder.Property(s => s.PlanCode)
+            .HasMaxLength(50)
+            .IsRequired();
+
+        builder.Property(s => s.VisitLimitPerMonth);
+
         builder.Property(s => s.StartDate).IsRequired();
         builder.Property(s => s.EndDate).IsRequired();
     }

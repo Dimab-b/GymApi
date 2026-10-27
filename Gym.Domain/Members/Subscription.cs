@@ -10,6 +10,8 @@ namespace Gym.Domain.Members
     public class Subscription : Entity
     {
         public Guid Id { get; private set; }
+        public string PlanCode { get; private set; }
+        public int? VisitLimitPerMonth { get; private set; }
         public DateTime StartDate { get; private set; }
         public DateTime EndDate { get; private set; }
         public Price Price { get; private set; }
@@ -20,9 +22,11 @@ namespace Gym.Domain.Members
         private Subscription() { }
 
 
-        internal Subscription(Guid id, int durationMonths, Price totalPrice)
+        internal Subscription(Guid id, string planCode, int? visitLimitPerMonth, int durationMonths, Price totalPrice)
         {
             Id = id;
+            PlanCode = planCode;
+            VisitLimitPerMonth = visitLimitPerMonth;
             StartDate = DateTime.UtcNow;
             EndDate = StartDate.AddMonths(durationMonths);
             Price = totalPrice;
