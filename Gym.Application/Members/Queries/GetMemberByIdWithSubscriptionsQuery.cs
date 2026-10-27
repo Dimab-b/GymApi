@@ -27,7 +27,16 @@ namespace Gym.Application.Members.Queries
 
             var sql = @"
         SELECT * FROM ""Members"" WHERE ""Id"" = @Id;
-        SELECT * FROM ""Subscriptions"" WHERE ""MemberId"" = @Id;
+
+        SELECT 
+            ""Id"",
+            ""StartDate"",
+            ""EndDate"",
+            ""PriceAmount"",
+            ""PriceCurrency"",
+            (CURRENT_TIMESTAMP >= ""StartDate"" AND CURRENT_TIMESTAMP <= ""EndDate"") AS ""IsActive""
+        FROM ""Subscriptions""
+        WHERE ""MemberId"" = @Id;
     ";
 
             var command = new CommandDefinition(sql, new { Id = request.Id }, cancellationToken: cancellationToken);

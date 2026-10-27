@@ -30,7 +30,7 @@ namespace Gym.Infrastructure.Members.Consumers
 
             var body = sb.ToString();
 
-            await _emailSender.SendAsync(message.Email, "Purchased subscription", body);
+            await _emailSender.SendAsync(message.Email, "Purchased subscription", body, context.CancellationToken);
         }
     }
 }

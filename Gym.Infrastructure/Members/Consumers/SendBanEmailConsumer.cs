@@ -29,7 +29,7 @@ namespace Gym.Infrastructure.Members.Consumers
 
             string body = sb.ToString();
 
-            await _emailSender.SendAsync(message.Email, "Banned by Admin", body);
+            await _emailSender.SendAsync(message.Email, "Banned by Admin", body, context.CancellationToken);
         }
     }
 }
