@@ -46,6 +46,10 @@ namespace Gym.Domain.Members
             => _subscriptions.Any(s => s.IsActive);
 
 
+        public Subscription? ActiveSubscription
+            => _subscriptions.FirstOrDefault(s => s.IsActive);
+
+
         public void PurchaseSubscription(string planCode, decimal pricePerMonth, string currency, int durationMonths, int? visitLimitPerMonth)
         {
             if (durationMonths < 1)
@@ -54,12 +58,10 @@ namespace Gym.Domain.Members
             if (IsBanned)
                 throw new InvalidOperationException("Banned members cannot purchase subscriptions.");
 
-            if (_subscriptions.Any(s => s.IsActive))
-                throw new InvalidOperationException("Member already has an active subscription.");
-
+            var startDate = GetNextPeriodStart(DateTime.UtcNow);
             var totalPrice = new Price(pricePerMonth * durationMonths, currency);
 
-            var newSub = new Subscription(Guid.NewGuid(), planCode, visitLimitPerMonth, durationMonths, totalPrice);
+            var newSub = new Subscription(Guid.NewGuid(), planCode, visitLimitPerMonth, startDate, durationMonths, totalPrice);
 
             _subscriptions.Add(newSub);
 
@@ -68,6 +70,16 @@ namespace Gym.Domain.Members
 
         public void PurchaseSubscription(int durationMonths, Price monthlyPrice)
             => PurchaseSubscription("legacy", monthlyPrice.Value, monthlyPrice.Currency, durationMonths, null);
+
+        private DateTime GetNextPeriodStart(DateTime nowUtc)
+        {
+            var latestEnd = _subscriptions
+                .Select(s => s.EndDate)
+                .DefaultIfEmpty(nowUtc)
+                .Max();
+
+            return latestEnd > nowUtc ? latestEnd : nowUtc;
+        }
 
         public void UpdateBodyMetrics(decimal height, decimal weight, int age, string goal)
         {
@@ -81,23 +93,6 @@ namespace Gym.Domain.Members
         }
 
 
-        public void ExtendActiveSubscription(int extraMonths)
-        {
-            if (extraMonths < 1)
-                throw new ArgumentOutOfRangeException(nameof(extraMonths), "Extension must be at least 1 month.");
-
-            if (IsBanned)
-                throw new InvalidOperationException("Banned members cannot extend subscription");
-
-            var activeSub = _subscriptions.FirstOrDefault(s => s.IsActive);
-
-            if (activeSub == null)
-                throw new InvalidOperationException("Member does not have an active subscription to extend.");
-
-            activeSub.Extend(extraMonths);
-        }
-
-
         public void BanUser()
         {
             if (IsBanned)
@@ -106,10 +101,11 @@ namespace Gym.Domain.Members
             this.IsBanned = true;
 
 
-            var activeSubscriptions = _subscriptions.Where(s => s.IsActive).ToList();
+            var subscriptionsToCancel = _subscriptions
+                .Where(s => s.EndDate > DateTime.UtcNow)
+                .ToList();
 
-            
-            foreach (var sub in activeSubscriptions)
+            foreach (var sub in subscriptionsToCancel)
             {
                 sub.Cancel();
             }
