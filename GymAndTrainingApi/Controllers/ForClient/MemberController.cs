@@ -65,6 +65,14 @@ namespace Gym.Api.Controllers.ForClient
             return Ok("Body Metrics successfully updated");
         }
 
+        [HttpGet("subscription-plans")]
+        public async Task<ActionResult<IReadOnlyList<SubscriptionPlanDto>>> GetSubscriptionPlans(CancellationToken cancellationToken = default)
+        {
+            var plans = await _mediator.Send(new GetSubscriptionPlansQuery(), cancellationToken);
+
+            return Ok(plans);
+        }
+
         [HttpGet("{id:guid}/profile")]
         public async Task<ActionResult<MemberReadDto>> GetMember(Guid id, CancellationToken cancellationToken = default)
         {

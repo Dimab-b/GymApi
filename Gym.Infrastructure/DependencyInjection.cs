@@ -9,6 +9,7 @@ using Gym.Infrastructure.Common.Services;
 using Gym.Infrastructure.Members;
 using Gym.Infrastructure.Persistence;
 using Gym.Infrastructure.Persistence.Interceptors;
+using Gym.Infrastructure.Subscriptions;
 using Gym.Infrastructure.Trainers;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -40,6 +41,7 @@ namespace Gym.Infrastructure
             services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<AppDbContext>());
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddScoped<IIntegrationEventPublisher, MassTransitEventPublisher>();
+            services.AddSingleton<ISubscriptionPlanProvider, SubscriptionPlanProvider>();
 
             var rabbitMq = configuration.GetSection("RabbitMq");
             var rabbitHost = rabbitMq["Host"] ?? "localhost";
