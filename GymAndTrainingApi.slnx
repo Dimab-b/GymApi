@@ -10,17 +10,8 @@
     <File Path=".env" />
     <File Path=".env.example" />
   </Folder>
-  <Project Path="Gym.Application/Gym.Application.csproj">
-    <BuildDependency Project="Gym.Domain/Gym.Domain.csproj" />
-  </Project>
+  <Project Path="Gym.Application/Gym.Application.csproj" />
   <Project Path="Gym.Domain/Gym.Domain.csproj" />
-  <Project Path="Gym.Infrastructure/Gym.Infrastructure.csproj">
-    <BuildDependency Project="Gym.Application/Gym.Application.csproj" />
-    <BuildDependency Project="Gym.Domain/Gym.Domain.csproj" />
-  </Project>
-  <Project Path="GymAndTrainingApi/Gym.Api.csproj">
-    <BuildDependency Project="Gym.Application/Gym.Application.csproj" />
-    <BuildDependency Project="Gym.Domain/Gym.Domain.csproj" />
-    <BuildDependency Project="Gym.Infrastructure/Gym.Infrastructure.csproj" />
-  </Project>
+  <Project Path="Gym.Infrastructure/Gym.Infrastructure.csproj" />
+  <Project Path="GymAndTrainingApi/Gym.Api.csproj" />
 </Solution>
