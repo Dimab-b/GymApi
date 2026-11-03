@@ -7,6 +7,7 @@ using Gym.Application.Members.Dto_s;
 using Gym.Application.Members.Queries;
 using Gym.Application.Trainers.Dto_s;
 using Gym.Application.Trainers.Queries;
+using Gym.Domain.Payments;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -33,25 +34,35 @@ namespace Gym.Api.Controllers.ForClient
 
 
         [HttpPost("{id:guid}/profile/subscriptions/purchase")]
-        public async Task<IActionResult> PurchaseSubscription(Guid id, [FromBody] PurchaseSubscriptionRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<PurchaseResultDto>> PurchaseSubscription(Guid id, [FromBody] PurchaseSubscriptionRequest request, CancellationToken cancellationToken = default)
         {
-            var command = new PurchaseSubscriptionCommand(id, request.DurationMonths, request.Value, request.Currency);
+            var command = new PurchaseSubscriptionCommand(
+                id,
+                request.PlanCode,
+                request.DurationMonths,
+                PaymentMethod.Online,
+                PaymentPurpose.NewSubscription);
 
-            await _mediator.Send(command, cancellationToken);
+            var result = await _mediator.Send(command, cancellationToken);
 
-            return Ok("Subscription successfully purchased.");
+            return Ok(result);
         }
 
 
 
         [HttpPost("{id:guid}/profile/subscriptions/extend")]
-        public async Task<IActionResult> ExtendSubscription(Guid id, [FromBody] ExtendSubscriptionRequest request, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<PurchaseResultDto>> ExtendSubscription(Guid id, [FromBody] ExtendSubscriptionRequest request, CancellationToken cancellationToken = default)
         {
-            var command = new ExtendSubscriptionCommand(id, request.ExtraMonths);
+            var command = new PurchaseSubscriptionCommand(
+                id,
+                request.PlanCode,
+                request.DurationMonths,
+                PaymentMethod.Online,
+                PaymentPurpose.Extension);
 
-            await _mediator.Send(command, cancellationToken);
+            var result = await _mediator.Send(command, cancellationToken);
 
-            return Ok("Subscription successfully extended.");
+            return Ok(result);
         }
 
 
@@ -130,8 +141,8 @@ namespace Gym.Api.Controllers.ForClient
         }
 
 
-        public record PurchaseSubscriptionRequest(int DurationMonths , decimal Value , string Currency);
-        public record ExtendSubscriptionRequest(int ExtraMonths);
+        public record PurchaseSubscriptionRequest(string PlanCode, int DurationMonths);
+        public record ExtendSubscriptionRequest(string PlanCode, int DurationMonths);
         public record UpdateBodyMetricsRequest(decimal Height, decimal Weight, int Age, string Goal);
         public record CreateBookingRequest(Guid TrainerId, DateTime StartTime);
         public record GetMyBookingsRequest(string? Status, int PageNumber, int PageSize);

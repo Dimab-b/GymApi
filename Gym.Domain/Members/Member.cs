@@ -82,9 +82,6 @@ namespace Gym.Domain.Members
             return newSub;
         }
 
-        public void PurchaseSubscription(int durationMonths, Price monthlyPrice)
-            => PurchaseSubscription("legacy", monthlyPrice.Value, monthlyPrice.Currency, durationMonths, null);
-
         private DateTime GetNextPeriodStart(DateTime nowUtc)
         {
             var latestEnd = _subscriptions

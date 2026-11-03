@@ -8,6 +8,7 @@ using Gym.Application.Members.Queries;
 using Gym.Application.Trainers.Commands;
 using Gym.Application.Trainers.Dto_s;
 using Gym.Application.Trainers.Queries;
+using Gym.Domain.Payments;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,6 +52,40 @@ namespace Gym.Api.Controllers.ForBusiness
             var res = await _mediator.Send(request, cancellationToken);
 
             return Ok(res);
+        }
+
+        [HttpPost("members/{id:guid}/subscriptions/purchase")]
+        public async Task<ActionResult<PurchaseResultDto>> PurchaseSubscription(Guid id, [FromBody] CashDeskPurchaseRequest request, CancellationToken cancellationToken = default)
+        {
+            var method = ResolveCashDeskMethod(request.Method);
+
+            var command = new PurchaseSubscriptionCommand(
+                id,
+                request.PlanCode,
+                request.DurationMonths,
+                method,
+                PaymentPurpose.NewSubscription);
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return Ok(result);
+        }
+
+        [HttpPost("members/{id:guid}/subscriptions/extend")]
+        public async Task<ActionResult<PurchaseResultDto>> ExtendSubscription(Guid id, [FromBody] CashDeskPurchaseRequest request, CancellationToken cancellationToken = default)
+        {
+            var method = ResolveCashDeskMethod(request.Method);
+
+            var command = new PurchaseSubscriptionCommand(
+                id,
+                request.PlanCode,
+                request.DurationMonths,
+                method,
+                PaymentPurpose.Extension);
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return Ok(result);
         }
 
         [HttpGet("stats")]
@@ -134,6 +169,15 @@ namespace Gym.Api.Controllers.ForBusiness
         }
 
 
+        private static PaymentMethod ResolveCashDeskMethod(PaymentMethod? method)
+        {
+            if (method is not { } value || value is not (PaymentMethod.Cash or PaymentMethod.Terminal))
+                throw new ArgumentException("Cash-desk operations accept only Cash or Terminal.", nameof(method));
+
+            return value;
+        }
+
+        public record CashDeskPurchaseRequest(string PlanCode, int DurationMonths, PaymentMethod? Method);
         public record NewTrainerPriceRequest(decimal NewPrice, string Currency);
         public record UpdateTrainerProfileRequest(string Name, string Specialization);
     }
