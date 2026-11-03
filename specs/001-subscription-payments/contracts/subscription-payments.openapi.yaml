@@ -1,0 +1,338 @@
+openapi: 3.0.3
+info:
+  title: Subscription Payments API
+  version: 1.0.0
+  description: >
+    Server-priced subscription purchase and renewal with recorded payments.
+    Client operations record the payment method as Online; cash-desk operations
+    accept Cash or Terminal.
+paths:
+  /Member/subscription-plans:
+    get:
+      summary: List available subscription plans
+      responses:
+        '200':
+          description: Available plans with server-side prices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubscriptionPlanDto'
+  /Member/{id}/profile/subscriptions/purchase:
+    post:
+      summary: Member buys a subscription online
+      parameters:
+        - $ref: '#/components/parameters/MemberId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseRequest'
+      responses:
+        '200':
+          description: Subscription period and online payment recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseResultDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /Member/{id}/profile/subscriptions/extend:
+    post:
+      summary: Member renews a subscription online with any available plan
+      parameters:
+        - $ref: '#/components/parameters/MemberId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseRequest'
+      responses:
+        '200':
+          description: New subscription period and online payment recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseResultDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /Admin/members/{id}/subscriptions/purchase:
+    post:
+      summary: Reception sells a subscription with cash or terminal
+      parameters:
+        - $ref: '#/components/parameters/MemberId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CashPurchaseRequest'
+      responses:
+        '200':
+          description: Subscription period and cash-desk payment recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseResultDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /Admin/members/{id}/subscriptions/extend:
+    post:
+      summary: Reception renews a subscription with cash or terminal
+      parameters:
+        - $ref: '#/components/parameters/MemberId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CashPurchaseRequest'
+      responses:
+        '200':
+          description: New subscription period and cash-desk payment recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseResultDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /Admin/members/{id}/payments:
+    get:
+      summary: List a member's payments
+      parameters:
+        - $ref: '#/components/parameters/MemberId'
+        - $ref: '#/components/parameters/PageNumber'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Paginated payments
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentDto'
+                  totalCount:
+                    type: integer
+                  pageNumber:
+                    type: integer
+                  pageSize:
+                    type: integer
+  /Admin/revenue:
+    get:
+      summary: Revenue for a date range
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: method
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/PaymentMethod'
+        - name: purpose
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/PaymentPurpose'
+      responses:
+        '200':
+          description: Revenue totals for the range
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RevenueDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+components:
+  parameters:
+    MemberId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    PageNumber:
+      name: pageNumber
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSize:
+      name: pageSize
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+  responses:
+    BadRequest:
+      description: Invalid input such as duration out of range or missing plan
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    NotFound:
+      description: Member or plan not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    Conflict:
+      description: Concurrent conflicting purchase or overlapping period
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+  schemas:
+    SubscriptionPlanDto:
+      type: object
+      required: [code, name, pricePerMonth, currency]
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        pricePerMonth:
+          type: number
+          format: decimal
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+        visitLimitPerMonth:
+          type: integer
+          nullable: true
+    PurchaseRequest:
+      type: object
+      required: [planCode, durationMonths]
+      properties:
+        planCode:
+          type: string
+        durationMonths:
+          type: integer
+          minimum: 1
+          maximum: 12
+    CashPurchaseRequest:
+      allOf:
+        - $ref: '#/components/schemas/PurchaseRequest'
+        - type: object
+          required: [method]
+          properties:
+            method:
+              $ref: '#/components/schemas/PaymentMethod'
+    PurchaseResultDto:
+      type: object
+      required: [subscriptionId, amount, currency]
+      properties:
+        subscriptionId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          format: decimal
+        currency:
+          type: string
+    PaymentDto:
+      type: object
+      required: [id, memberId, amount, currency, paidAt, method, purpose, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        memberId:
+          type: string
+          format: uuid
+        subscriptionId:
+          type: string
+          format: uuid
+          nullable: true
+        amount:
+          type: number
+          format: decimal
+        currency:
+          type: string
+        paidAt:
+          type: string
+          format: date-time
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
+        purpose:
+          $ref: '#/components/schemas/PaymentPurpose'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        note:
+          type: string
+          nullable: true
+    RevenueDto:
+      type: object
+      required: [from, to, totalAmount]
+      properties:
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        totalAmount:
+          type: number
+          format: decimal
+        currency:
+          type: string
+          nullable: true
+    PaymentMethod:
+      type: string
+      enum: [Cash, Terminal, Online]
+    PaymentPurpose:
+      type: string
+      enum: [NewSubscription, Extension]
+    PaymentStatus:
+      type: string
+      enum: [Pending, Completed, Refunded]
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string

@@ -2,11 +2,13 @@
 using Gym.Domain.Bookings;
 using Gym.Domain.Common;
 using Gym.Domain.Members;
+using Gym.Domain.Payments;
 using Gym.Domain.Trainers;
 using Gym.Infrastructure.BackgroundJobs;
 using Gym.Infrastructure.Bookings;
 using Gym.Infrastructure.Common.Services;
 using Gym.Infrastructure.Members;
+using Gym.Infrastructure.Payments;
 using Gym.Infrastructure.Persistence;
 using Gym.Infrastructure.Persistence.Interceptors;
 using Gym.Infrastructure.Subscriptions;
@@ -36,6 +38,7 @@ namespace Gym.Infrastructure
                        .AddInterceptors(sp.GetRequiredService<DispatchDomainEventsInterceptor>()));
 
             services.AddScoped<IMemberRepository, MemberRepository>();
+            services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddScoped<ITrainerRepository, TrainerRepository>();
             services.AddScoped<IBookingRepository, BookingRepository>();
             services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<AppDbContext>());
