@@ -122,11 +122,11 @@ the total correctly.
 
 ### Implementation for User Story 3
 
-- [ ] T022 [P] [US3] Create `Gym.Application/Members/Dto's/PaymentDto.cs` with `Guid Id`, `Guid MemberId`, `Guid? SubscriptionId`, `decimal Amount`, `string Currency`, `DateTime PaidAt`, `PaymentMethod Method`, `PaymentPurpose Purpose`, `PaymentStatus Status`, and `string? Note`.
-- [ ] T023 [P] [US3] Create `Gym.Application/Members/Dto's/RevenueDto.cs` with `DateOnly From`, `DateOnly To`, `decimal TotalAmount`, and `string? Currency`.
-- [ ] T024 [US3] Implement `Gym.Application/Members/Queries/GetMemberPaymentsQuery.cs` with `record GetMemberPaymentsQuery(Guid MemberId, int PageNumber = 1, int PageSize = 20) : IRequest<PagedResult<PaymentDto>>`; use Dapper and `IConfiguration.GetConnectionString("DefaultConnection")`; reject `PageNumber < 1` and `PageSize < 1 || PageSize > 100`; throw `KeyNotFoundException` when the member does not exist; query `"Payments"` ordered by `"PaidAt" DESC` with `LIMIT @PageSize OFFSET @Offset`; map `"AmountValue"` to `Amount`, `"AmountCurrency"` to `Currency`, and the string columns to the enums; return `PagedResult<PaymentDto>(items, totalCount, pageNumber, pageSize)`; depends on T022.
-- [ ] T025 [US3] Implement `Gym.Application/Members/Queries/GetRevenueQuery.cs` with `record GetRevenueQuery(DateOnly From, DateOnly To, PaymentMethod? Method = null, PaymentPurpose? Purpose = null) : IRequest<RevenueDto>`; reject `From > To`; convert to a UTC inclusive-lower/exclusive-upper range (`From` at 00:00 UTC, `To + 1 day` at 00:00 UTC); sum `"AmountValue"` and take `MIN("AmountCurrency")` (null when there are no rows); compare the string enum columns using `Method?.ToString()` and `Purpose?.ToString()` with explicit `::text` casts, for example `(@Method::text IS NULL OR "Method" = @Method)`, so Npgsql can infer the parameter type when the filter is null; return `RevenueDto`; depends on T023.
-- [ ] T026 [US3] Update `GymAndTrainingApi/Controllers/ForBusiness/AdminController.cs`: add `GET members/{id:guid}/payments` with `[FromQuery] int pageNumber = 1` and `[FromQuery] int pageSize = 20`, sending `GetMemberPaymentsQuery`; add `GET revenue` with `[FromQuery] DateOnly from`, `[FromQuery] DateOnly to`, `[FromQuery] PaymentMethod? method`, and `[FromQuery] PaymentPurpose? purpose`, sending `GetRevenueQuery`; return the results with `Ok`; depends on T024 and T025.
+- [X] T022 [P] [US3] Create `Gym.Application/Payments/Dto's/PaymentDto.cs` with `Guid Id`, `Guid MemberId`, `Guid? SubscriptionId`, `decimal Amount`, `string Currency`, `DateTime PaidAt`, `string Method`, `string Purpose`, `string Status`, and `string? Note` (read model uses strings, matching the API contract).
+- [X] T023 [P] [US3] Create `Gym.Application/Payments/Dto's/RevenueDto.cs` with `DateOnly From`, `DateOnly To`, `decimal TotalAmount`, and `string? Currency`.
+- [X] T024 [US3] Implement `Gym.Application/Payments/Queries/GetMemberPaymentsQuery.cs` with `record GetMemberPaymentsQuery(Guid MemberId, int PageNumber = 1, int PageSize = 20) : IRequest<PagedResult<PaymentDto>>`; use Dapper and `IConfiguration.GetConnectionString("DefaultConnection")`; reject `PageNumber < 1` and `PageSize < 1 || PageSize > 100`; throw `KeyNotFoundException` when the member does not exist; query `"Payments"` ordered by `"PaidAt" DESC` with `LIMIT @PageSize OFFSET @Offset`; map `"AmountValue"` to `Amount`, `"AmountCurrency"` to `Currency`, and keep `"Method"`/`"Purpose"`/`"Status"` as strings; return `PagedResult<PaymentDto>(items, totalCount, pageNumber, pageSize)`; depends on T022.
+- [X] T025 [US3] Implement `Gym.Application/Payments/Queries/GetRevenueQuery.cs` with `record GetRevenueQuery(DateOnly From, DateOnly To, PaymentMethod? Method = null, PaymentPurpose? Purpose = null) : IRequest<RevenueDto>`; reject `From > To`; convert to a UTC inclusive-lower/exclusive-upper range (`From` at 00:00 UTC, `To + 1 day` at 00:00 UTC); sum `"AmountValue"` and take `MIN("AmountCurrency")` (null when there are no rows); compare the string enum columns using `Method?.ToString()` and `Purpose?.ToString()` with explicit `::text` casts, for example `(@Method::text IS NULL OR "Method" = @Method)`, so Npgsql can infer the parameter type when the filter is null; return `RevenueDto`; depends on T023.
+- [X] T026 [US3] Update `GymAndTrainingApi/Controllers/ForBusiness/AdminController.cs`: add `GET members/{id:guid}/payments` with `[FromQuery] int pageNumber = 1` and `[FromQuery] int pageSize = 20`, sending `GetMemberPaymentsQuery`; add `GET revenue` with `[FromQuery] DateOnly from`, `[FromQuery] DateOnly to`, `[FromQuery] PaymentMethod? method`, and `[FromQuery] PaymentPurpose? purpose`, sending `GetRevenueQuery`; return the results with `Ok`; depends on T024 and T025.
 
 **Checkpoint**: All three user stories work. Revenue is computed from payments,
 not from subscription dates or prices.
@@ -137,11 +137,11 @@ not from subscription dates or prices.
 
 **Purpose**: Verification and safety checks across the feature.
 
-- [ ] T027 Run `dotnet build GymAndTrainingApi.slnx` and fix all errors and warnings introduced by this feature.
-- [ ] T028 Run `dotnet ef migrations has-pending-model-changes --project Gym.Infrastructure --startup-project GymAndTrainingApi/Gym.Api.csproj` and confirm it reports no pending changes.
-- [ ] T029 Execute the scenarios in `specs/001-subscription-payments/quickstart.md`: online purchase and renewal, plan switch, 12-month cap, concurrent purchase conflict, cash and terminal sales, banned member, member payments, and revenue with filters; record the actual results.
-- [ ] T030 Review `git diff` and `git status`: confirm no secrets, `.env`, connection strings, or old hardcoded prices (600/400) are present; do not commit or push unless explicitly requested.
-- [ ] T031 Verify the implemented routes, request bodies, and response shapes match `specs/001-subscription-payments/contracts/subscription-payments.openapi.yaml` (200 responses, `PurchaseResultDto`, nullable revenue currency); update the contract only for a deliberate deviation.
+- [X] T027 Run `dotnet build GymAndTrainingApi.slnx` and fix all errors and warnings introduced by this feature.
+- [X] T028 Run `dotnet ef migrations has-pending-model-changes --project Gym.Infrastructure --startup-project GymAndTrainingApi/Gym.Api.csproj` and confirm it reports no pending changes.
+- [X] T029 Execute the scenarios in `specs/001-subscription-payments/quickstart.md`: online purchase and renewal, plan switch, 12-month cap, concurrent purchase conflict, cash and terminal sales, banned member, member payments, and revenue with filters; record the actual results.
+- [X] T030 Review `git diff` and `git status`: confirm no secrets, `.env`, connection strings, or old hardcoded prices (600/400) are present; do not commit or push unless explicitly requested.
+- [X] T031 Verify the implemented routes, request bodies, and response shapes match `specs/001-subscription-payments/contracts/subscription-payments.openapi.yaml` (200 responses, `PurchaseResultDto`, nullable revenue currency); update the contract only for a deliberate deviation.
 
 ---
 
@@ -190,12 +190,12 @@ not from subscription dates or prices.
 ## Parallel Example: User Story 3
 
 ```text
-Task: "Create PaymentDto in Gym.Application/Members/Dto's/PaymentDto.cs"
-Task: "Create RevenueDto in Gym.Application/Members/Dto's/RevenueDto.cs"
+Task: "Create PaymentDto in Gym.Application/Payments/Dto's/PaymentDto.cs"
+Task: "Create RevenueDto in Gym.Application/Payments/Dto's/RevenueDto.cs"
 
 # After both DTOs exist:
-Task: "Implement GetMemberPaymentsQuery in Gym.Application/Members/Queries/GetMemberPaymentsQuery.cs"
-Task: "Implement GetRevenueQuery in Gym.Application/Members/Queries/GetRevenueQuery.cs"
+Task: "Implement GetMemberPaymentsQuery in Gym.Application/Payments/Queries/GetMemberPaymentsQuery.cs"
+Task: "Implement GetRevenueQuery in Gym.Application/Payments/Queries/GetRevenueQuery.cs"
 ```
 
 ## Parallel Example: After the Shared Command

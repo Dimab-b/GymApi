@@ -5,6 +5,8 @@ using Gym.Application.Common;
 using Gym.Application.Members.Commands;
 using Gym.Application.Members.Dto_s;
 using Gym.Application.Members.Queries;
+using Gym.Application.Payments.Dto_s;
+using Gym.Application.Payments.Queries;
 using Gym.Application.Trainers.Commands;
 using Gym.Application.Trainers.Dto_s;
 using Gym.Application.Trainers.Queries;
@@ -84,6 +86,35 @@ namespace Gym.Api.Controllers.ForBusiness
                 PaymentPurpose.Extension);
 
             var result = await _mediator.Send(command, cancellationToken);
+
+            return Ok(result);
+        }
+
+        [HttpGet("members/{id:guid}/payments")]
+        public async Task<ActionResult<PagedResult<PaymentDto>>> GetMemberPayments(
+            Guid id,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 20,
+            CancellationToken cancellationToken = default)
+        {
+            var query = new GetMemberPaymentsQuery(id, pageNumber, pageSize);
+
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
+        }
+
+        [HttpGet("revenue")]
+        public async Task<ActionResult<RevenueDto>> GetRevenue(
+            [FromQuery] DateOnly from,
+            [FromQuery] DateOnly to,
+            [FromQuery] PaymentMethod? method,
+            [FromQuery] PaymentPurpose? purpose,
+            CancellationToken cancellationToken = default)
+        {
+            var query = new GetRevenueQuery(from, to, method, purpose);
+
+            var result = await _mediator.Send(query, cancellationToken);
 
             return Ok(result);
         }
@@ -169,15 +200,16 @@ namespace Gym.Api.Controllers.ForBusiness
         }
 
 
-        private static PaymentMethod ResolveCashDeskMethod(PaymentMethod? method)
+        private static PaymentMethod ResolveCashDeskMethod(string? method)
         {
-            if (method is not { } value || value is not (PaymentMethod.Cash or PaymentMethod.Terminal))
+            if (!Enum.TryParse<PaymentMethod>(method, ignoreCase: true, out var parsed) ||
+                parsed is not (PaymentMethod.Cash or PaymentMethod.Terminal))
                 throw new ArgumentException("Cash-desk operations accept only Cash or Terminal.", nameof(method));
 
-            return value;
+            return parsed;
         }
 
-        public record CashDeskPurchaseRequest(string PlanCode, int DurationMonths, PaymentMethod? Method);
+        public record CashDeskPurchaseRequest(string PlanCode, int DurationMonths, string? Method);
         public record NewTrainerPriceRequest(decimal NewPrice, string Currency);
         public record UpdateTrainerProfileRequest(string Name, string Specialization);
     }

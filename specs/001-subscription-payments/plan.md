@@ -94,14 +94,16 @@ Gym.Domain/
 
 Gym.Application/
 |-- Members/Commands/
-|   `-- PurchaseSubscriptionCommand.cs   # Shared purchase/renewal: PlanCode + Duration + Method + Purpose
-|-- Members/Queries/
+|   `-- PurchaseSubscriptionCommand.cs   # Shared purchase/renewal orchestration (Member + Payment)
+|-- Members/Queries/                     # Member profile/plans read models
+|-- Members/Dto's/
+|   `-- PurchaseResultDto.cs
+|-- Payments/Dto's/
+|   |-- PaymentDto.cs
+|   `-- RevenueDto.cs
+|-- Payments/Queries/
 |   |-- GetMemberPaymentsQuery.cs        # New (Dapper)
 |   `-- GetRevenueQuery.cs               # New (Dapper)
-|-- Members/Dto's/
-|   |-- PaymentDto.cs
-|   |-- RevenueDto.cs
-|   `-- PurchaseResultDto.cs
 |-- Common/Interfaces/
 |   `-- ISubscriptionPlanProvider.cs     # Existing
 `-- Common/Events/Members/
