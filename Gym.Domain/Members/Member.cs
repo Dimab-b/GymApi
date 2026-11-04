@@ -50,15 +50,27 @@ namespace Gym.Domain.Members
             => _subscriptions.FirstOrDefault(s => s.IsActive);
 
 
-        public void PurchaseSubscription(string planCode, decimal pricePerMonth, string currency, int durationMonths, int? visitLimitPerMonth)
+        public Subscription PurchaseSubscription(string planCode, decimal pricePerMonth, string currency, int durationMonths, int? visitLimitPerMonth)
         {
-            if (durationMonths < 1)
-                throw new ArgumentException("Duration of subscription must be greater than 0");
+            if (durationMonths < 1 || durationMonths > 12)
+                throw new ArgumentException("Duration of subscription must be between 1 and 12 months.", nameof(durationMonths));
 
             if (IsBanned)
                 throw new InvalidOperationException("Banned members cannot purchase subscriptions.");
 
-            var startDate = GetNextPeriodStart(DateTime.UtcNow);
+            var now = DateTime.UtcNow;
+            var startDate = GetNextPeriodStart(now);
+            var endDate = startDate.AddMonths(durationMonths);
+
+            var coverageAnchor = _subscriptions
+                .Where(s => s.EndDate > now)
+                .Select(s => s.StartDate)
+                .DefaultIfEmpty(now)
+                .Min();
+
+            if (endDate > coverageAnchor.AddMonths(12))
+                throw new InvalidOperationException("Total subscription coverage cannot exceed 12 months from the start of the first current or future period.");
+
             var totalPrice = new Price(pricePerMonth * durationMonths, currency);
 
             var newSub = new Subscription(Guid.NewGuid(), planCode, visitLimitPerMonth, startDate, durationMonths, totalPrice);
@@ -66,10 +78,9 @@ namespace Gym.Domain.Members
             _subscriptions.Add(newSub);
 
             AddDomainEvent(new SubscriptionPurchasedDomainEvent(this.Id, newSub.Id , newSub.StartDate , newSub.EndDate , Name , Email.Value));
-        }
 
-        public void PurchaseSubscription(int durationMonths, Price monthlyPrice)
-            => PurchaseSubscription("legacy", monthlyPrice.Value, monthlyPrice.Currency, durationMonths, null);
+            return newSub;
+        }
 
         private DateTime GetNextPeriodStart(DateTime nowUtc)
         {

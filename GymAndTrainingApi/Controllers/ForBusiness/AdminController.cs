@@ -5,9 +5,12 @@ using Gym.Application.Common;
 using Gym.Application.Members.Commands;
 using Gym.Application.Members.Dto_s;
 using Gym.Application.Members.Queries;
+using Gym.Application.Payments.Dto_s;
+using Gym.Application.Payments.Queries;
 using Gym.Application.Trainers.Commands;
 using Gym.Application.Trainers.Dto_s;
 using Gym.Application.Trainers.Queries;
+using Gym.Domain.Payments;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,6 +54,69 @@ namespace Gym.Api.Controllers.ForBusiness
             var res = await _mediator.Send(request, cancellationToken);
 
             return Ok(res);
+        }
+
+        [HttpPost("members/{id:guid}/subscriptions/purchase")]
+        public async Task<ActionResult<PurchaseResultDto>> PurchaseSubscription(Guid id, [FromBody] CashDeskPurchaseRequest request, CancellationToken cancellationToken = default)
+        {
+            var method = ResolveCashDeskMethod(request.Method);
+
+            var command = new PurchaseSubscriptionCommand(
+                id,
+                request.PlanCode,
+                request.DurationMonths,
+                method,
+                PaymentPurpose.NewSubscription);
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return Ok(result);
+        }
+
+        [HttpPost("members/{id:guid}/subscriptions/extend")]
+        public async Task<ActionResult<PurchaseResultDto>> ExtendSubscription(Guid id, [FromBody] CashDeskPurchaseRequest request, CancellationToken cancellationToken = default)
+        {
+            var method = ResolveCashDeskMethod(request.Method);
+
+            var command = new PurchaseSubscriptionCommand(
+                id,
+                request.PlanCode,
+                request.DurationMonths,
+                method,
+                PaymentPurpose.Extension);
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return Ok(result);
+        }
+
+        [HttpGet("members/{id:guid}/payments")]
+        public async Task<ActionResult<PagedResult<PaymentDto>>> GetMemberPayments(
+            Guid id,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 20,
+            CancellationToken cancellationToken = default)
+        {
+            var query = new GetMemberPaymentsQuery(id, pageNumber, pageSize);
+
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
+        }
+
+        [HttpGet("revenue")]
+        public async Task<ActionResult<RevenueDto>> GetRevenue(
+            [FromQuery] DateOnly from,
+            [FromQuery] DateOnly to,
+            [FromQuery] PaymentMethod? method,
+            [FromQuery] PaymentPurpose? purpose,
+            CancellationToken cancellationToken = default)
+        {
+            var query = new GetRevenueQuery(from, to, method, purpose);
+
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
         }
 
         [HttpGet("stats")]
@@ -134,6 +200,16 @@ namespace Gym.Api.Controllers.ForBusiness
         }
 
 
+        private static PaymentMethod ResolveCashDeskMethod(string? method)
+        {
+            if (!Enum.TryParse<PaymentMethod>(method, ignoreCase: true, out var parsed) ||
+                parsed is not (PaymentMethod.Cash or PaymentMethod.Terminal))
+                throw new ArgumentException("Cash-desk operations accept only Cash or Terminal.", nameof(method));
+
+            return parsed;
+        }
+
+        public record CashDeskPurchaseRequest(string PlanCode, int DurationMonths, string? Method);
         public record NewTrainerPriceRequest(decimal NewPrice, string Currency);
         public record UpdateTrainerProfileRequest(string Name, string Specialization);
     }
