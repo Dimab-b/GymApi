@@ -21,10 +21,13 @@ namespace Gym.Infrastructure.Subscriptions
                 .ToList();
         }
 
-        public IReadOnlyList<SubscriptionPlan> GetAll() => _plans;
+        public IReadOnlyList<SubscriptionPlan> GetAll() =>
+            _plans.Where(plan => plan.IsAvailable).ToList();
 
         public SubscriptionPlan? GetByCode(string code) =>
-            _plans.FirstOrDefault(plan => string.Equals(plan.Code, code, StringComparison.OrdinalIgnoreCase));
+            _plans.FirstOrDefault(plan =>
+                plan.IsAvailable &&
+                string.Equals(plan.Code, code, StringComparison.OrdinalIgnoreCase));
 
         private static SubscriptionPlan Map(IConfigurationSection section)
         {
@@ -46,12 +49,18 @@ namespace Gym.Infrastructure.Subscriptions
             if (currency.Trim().Length != 3)
                 throw new InvalidOperationException($"SubscriptionPlans:{code}:Currency must be 3 letters.");
 
+            var isAvailable = true;
+            if (!string.IsNullOrWhiteSpace(section["IsAvailable"]) &&
+                !bool.TryParse(section["IsAvailable"], out isAvailable))
+                throw new InvalidOperationException($"SubscriptionPlans:{code}:IsAvailable must be a boolean.");
+
             return new SubscriptionPlan(
                 code,
                 name,
                 pricePerMonth,
                 currency.Trim().ToUpperInvariant(),
-                visitLimitPerMonth);
+                visitLimitPerMonth,
+                isAvailable);
         }
     }
 }

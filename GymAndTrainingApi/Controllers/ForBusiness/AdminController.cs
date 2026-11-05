@@ -119,14 +119,6 @@ namespace Gym.Api.Controllers.ForBusiness
             return Ok(result);
         }
 
-        [HttpGet("stats")]
-        public async Task<ActionResult<AdminStatsDto>> GetStats(CancellationToken cancellationToken = default)
-        {
-            var res = await _mediator.Send(new GetAdminStatsQuery(), cancellationToken);
-
-            return Ok(res);
-        }
-
         [HttpPost("trainers")]
         public async Task<ActionResult<Guid>> CreateTrainer(CreateTrainerCommand command, CancellationToken cancellationToken = default)
         {

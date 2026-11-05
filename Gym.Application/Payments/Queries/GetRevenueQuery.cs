@@ -30,6 +30,9 @@ namespace Gym.Application.Payments.Queries
             if (request.From > request.To)
                 throw new ArgumentException("The start date must be earlier than or equal to the end date.");
 
+            if (request.To == DateOnly.MaxValue)
+                throw new ArgumentException("The end date is out of the supported range.", nameof(request.To));
+
             var fromUtc = request.From.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
             var toExclusiveUtc = request.To.AddDays(1).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
@@ -37,13 +40,15 @@ namespace Gym.Application.Payments.Queries
 
             const string sql = @"
                 SELECT
-                    COALESCE(SUM(""AmountValue""), 0) AS ""TotalAmount"",
-                    MIN(""AmountCurrency"") AS ""Currency""
+                    ""AmountCurrency"" AS ""Currency"",
+                    SUM(""AmountValue"") AS ""Amount""
                 FROM ""Payments""
                 WHERE ""PaidAt"" >= @FromUtc
                   AND ""PaidAt"" < @ToExclusiveUtc
                   AND (@Method::text IS NULL OR ""Method"" = @Method)
-                  AND (@Purpose::text IS NULL OR ""Purpose"" = @Purpose);";
+                  AND (@Purpose::text IS NULL OR ""Purpose"" = @Purpose)
+                GROUP BY ""AmountCurrency""
+                ORDER BY ""AmountCurrency"";";
 
             var command = new CommandDefinition(
                 sql,
@@ -56,15 +61,9 @@ namespace Gym.Application.Payments.Queries
                 },
                 cancellationToken: cancellationToken);
 
-            var row = await connection.QuerySingleAsync<RevenueRow>(command);
+            var totals = await connection.QueryAsync<RevenueTotalDto>(command);
 
-            return new RevenueDto(request.From, request.To, row.TotalAmount, row.Currency);
-        }
-
-        private sealed class RevenueRow
-        {
-            public decimal TotalAmount { get; set; }
-            public string? Currency { get; set; }
+            return new RevenueDto(request.From, request.To, totals.ToList());
         }
     }
 }

@@ -14,6 +14,7 @@ Sellable plan data, read from `SubscriptionPlans` configuration through
 | PricePerMonth | decimal | Required, greater than 0 |
 | Currency | string | Required, exactly 3 letters |
 | VisitLimitPerMonth | int? | Optional; null means unlimited. Not enforced by this feature |
+| IsAvailable | bool | Optional in configuration; default true. Unavailable plans are not returned and cannot be purchased |
 
 ### SubscriptionPeriod (entity inside the Member aggregate)
 
@@ -130,9 +131,8 @@ Aggregates reference each other by `Id` only; no object navigation between
 ### RevenueDto
 
 - `From`, `To` (echoed range)
-- `TotalAmount`, `Currency`
-- Optional breakdown by `Method` and/or `Purpose` when filters or grouping are
-  requested.
+- `Totals`: list of `{ Currency, Amount }`, one entry per payment currency
 
-Revenue is computed as the sum of `Amount` for payments whose `PaidAt` falls in
-the inclusive date range, optionally filtered by `Method` and `Purpose`.
+Revenue is grouped by payment currency for payments whose `PaidAt` falls in the
+inclusive date range, optionally filtered by `Method` and `Purpose`. An empty
+range returns an empty `Totals` list. No currency conversion is performed.

@@ -4,7 +4,9 @@
 
 **Created**: 2026-11-02
 
-**Status**: Draft
+**Status**: Implemented
+
+**Implementation**: Complete — 31/31 tasks; e2e verified (SC-001 purchase/renewal completed in seconds, SC-002 server pricing, SC-003 no overlapping periods under concurrency, SC-004 revenue matched payments, SC-005 no client price, SC-006 atomic rollback, SC-007 12-month cap).
 
 **Input**: User description: "Додати оплату підписок. Член/адмін купує або продовжує підписку за планом; ціну визначає сервер (SubscriptionPlan), клієнт передає лише PlanCode і DurationMonths. Кожна покупка/продовження створює новий період підписки (передоплата дозволена) і запис платежу з методом Cash/Terminal/Online. Адмін може дивитись платежі члена та виручку за період. Клієнтські та касові операції — різні ендпоінти, одна команда."
 

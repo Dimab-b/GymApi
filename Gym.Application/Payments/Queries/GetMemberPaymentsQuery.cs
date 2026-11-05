@@ -26,8 +26,8 @@ namespace Gym.Application.Payments.Queries
             GetMemberPaymentsQuery request,
             CancellationToken cancellationToken = default)
         {
-            if (request.PageNumber < 1)
-                throw new ArgumentException("Page number must be greater than 0.", nameof(request.PageNumber));
+            if (request.PageNumber < 1 || request.PageNumber > 100000)
+                throw new ArgumentException("Page number must be between 1 and 100000.", nameof(request.PageNumber));
 
             if (request.PageSize < 1 || request.PageSize > 100)
                 throw new ArgumentException("Page size must be between 1 and 100.", nameof(request.PageSize));
@@ -35,8 +35,6 @@ namespace Gym.Application.Payments.Queries
             await using var connection = new NpgsqlConnection(_connection);
 
             const string sql = @"
-                SELECT COUNT(*)::int FROM ""Members"" WHERE ""Id"" = @MemberId;
-
                 SELECT COUNT(*)::int FROM ""Payments"" WHERE ""MemberId"" = @MemberId;
 
                 SELECT
@@ -52,7 +50,7 @@ namespace Gym.Application.Payments.Queries
                     ""Note""
                 FROM ""Payments""
                 WHERE ""MemberId"" = @MemberId
-                ORDER BY ""PaidAt"" DESC
+                ORDER BY ""PaidAt"" DESC, ""Id"" DESC
                 LIMIT @PageSize OFFSET @Offset;";
 
             var command = new CommandDefinition(
@@ -61,16 +59,11 @@ namespace Gym.Application.Payments.Queries
                 {
                     request.MemberId,
                     request.PageSize,
-                    Offset = (request.PageNumber - 1) * request.PageSize
+                    Offset = (long)(request.PageNumber - 1) * request.PageSize
                 },
                 cancellationToken: cancellationToken);
 
             using var multi = await connection.QueryMultipleAsync(command);
-
-            var memberCount = await multi.ReadSingleAsync<int>();
-
-            if (memberCount == 0)
-                throw new KeyNotFoundException($"Member with ID {request.MemberId} was not found.");
 
             var totalCount = await multi.ReadSingleAsync<int>();
             var payments = await multi.ReadAsync<PaymentDto>();

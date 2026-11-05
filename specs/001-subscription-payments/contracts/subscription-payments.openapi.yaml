@@ -302,7 +302,7 @@ components:
           nullable: true
     RevenueDto:
       type: object
-      required: [from, to, totalAmount]
+      required: [from, to, totals]
       properties:
         from:
           type: string
@@ -310,12 +310,19 @@ components:
         to:
           type: string
           format: date
-        totalAmount:
-          type: number
-          format: decimal
+        totals:
+          type: array
+          items:
+            $ref: '#/components/schemas/RevenueTotalDto'
+    RevenueTotalDto:
+      type: object
+      required: [currency, amount]
+      properties:
         currency:
           type: string
-          nullable: true
+        amount:
+          type: number
+          format: decimal
     PaymentMethod:
       type: string
       enum: [Cash, Terminal, Online]
