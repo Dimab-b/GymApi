@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Gym.Domain.Members;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,11 +14,8 @@ namespace Gym.Domain.Members.Value_Objects
 
         public BodyMetrics(decimal heightCm, decimal weightKg, int age, string goal)
         {
-            if (heightCm <= 0 || weightKg <= 0 || age <= 0)
-                throw new ArgumentException("Metrics must be positive values.");
-
-            if (string.IsNullOrWhiteSpace(goal))
-                throw new ArgumentException("Goal cannot be empty.");
+            if (heightCm <= 0 || weightKg <= 0 || age <= 0 || string.IsNullOrWhiteSpace(goal))
+                throw new InvalidBodyMetricsException();
 
             HeightCm = heightCm;
             WeightKg = weightKg;

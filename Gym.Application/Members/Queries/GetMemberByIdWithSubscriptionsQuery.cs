@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Gym.Application.Common.Exceptions;
 using Gym.Application.Members.Dto_s;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -47,7 +48,7 @@ namespace Gym.Application.Members.Queries
 
             if (member == null)
             {
-                throw new KeyNotFoundException($"Member with ID {request.Id} was not found.");
+                throw new MemberNotFoundException(request.Id);
             }
 
             var subscriptions = await multi.ReadAsync<SubscriptionReadDto>();

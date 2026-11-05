@@ -1,3 +1,4 @@
+using Gym.Application.Common.Exceptions;
 using Gym.Domain.Bookings;
 using Gym.Domain.Common;
 using MediatR;
@@ -23,7 +24,7 @@ namespace Gym.Application.Bookings.Commands
         public async Task Handle(CompleteBookingCommand command, CancellationToken cancellationToken)
         {
             var booking = await _bookingRepository.GetByIdAsync(command.BookingId, cancellationToken)
-                ?? throw new KeyNotFoundException("Booking not found.");
+                ?? throw new BookingNotFoundException(command.BookingId);
 
             booking.Complete();
 

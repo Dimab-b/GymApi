@@ -1,4 +1,5 @@
-﻿using Gym.Domain.Common;
+﻿using Gym.Application.Common.Exceptions;
+using Gym.Domain.Common;
 using Gym.Domain.Trainers;
 using MediatR;
 using System;
@@ -22,7 +23,7 @@ namespace Gym.Application.Trainers.Commands
 
         public async Task Handle(DeactivateTrainerCommand command , CancellationToken cancellationToken = default)
         {
-            var trainer = await _trainerRepository.GetByIdAsync(command.Id , cancellationToken) ?? throw new KeyNotFoundException("Trainer not found");
+            var trainer = await _trainerRepository.GetByIdAsync(command.Id , cancellationToken) ?? throw new TrainerNotFoundException(command.Id);
 
             trainer.Deactivate();
 

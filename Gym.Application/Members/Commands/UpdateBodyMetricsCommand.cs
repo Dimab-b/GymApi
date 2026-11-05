@@ -1,4 +1,5 @@
-﻿using Gym.Domain.Common;
+﻿using Gym.Application.Common.Exceptions;
+using Gym.Domain.Common;
 using Gym.Domain.Members;
 using Gym.Domain.Members.Value_Objects;
 using MediatR;
@@ -28,7 +29,7 @@ namespace Gym.Application.Members.Commands
 
             if (member == null)
             {
-                throw new KeyNotFoundException("That member not found");
+                throw new MemberNotFoundException(command.Id);
             }
 
             

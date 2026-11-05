@@ -1,4 +1,5 @@
 using Gym.Application.Common.Events.Bookings;
+using Gym.Application.Common.Exceptions;
 using Gym.Application.Common.Interfaces;
 using Gym.Domain.Bookings;
 using Gym.Domain.Members;
@@ -29,9 +30,9 @@ namespace Gym.Application.Bookings.Events
         public async Task Handle(SessionCancelledDomainEvent notification, CancellationToken cancellationToken)
         {
             var member = await _memberRepository.GetByIdAsync(notification.MemberId, cancellationToken)
-                ?? throw new KeyNotFoundException("Member not found.");
+                ?? throw new MemberNotFoundException(notification.MemberId);
             var trainer = await _trainerRepository.GetByIdAsync(notification.TrainerId, cancellationToken)
-                ?? throw new KeyNotFoundException("Trainer not found.");
+                ?? throw new TrainerNotFoundException(notification.TrainerId);
 
             await _publisher.PublishAsync(new SessionCancelledIntegrationEvent(
                 notification.Id,

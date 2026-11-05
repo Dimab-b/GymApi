@@ -1,4 +1,5 @@
-﻿using Gym.Domain.Common;
+﻿using Gym.Application.Common.Exceptions;
+using Gym.Domain.Common;
 using Gym.Domain.Common.VO;
 using Gym.Domain.Trainers;
 using MediatR;
@@ -30,7 +31,7 @@ namespace Gym.Application.Trainers.Commands
 
             if (trainer == null)
             {
-                throw new KeyNotFoundException("That trainer not found");
+                throw new TrainerNotFoundException(command.Id);
             }
 
             trainer.ChangePrice(validPrice);

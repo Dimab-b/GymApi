@@ -26,12 +26,6 @@ namespace Gym.Application.Payments.Queries
             GetMemberPaymentsQuery request,
             CancellationToken cancellationToken = default)
         {
-            if (request.PageNumber < 1 || request.PageNumber > 100000)
-                throw new ArgumentException("Page number must be between 1 and 100000.", nameof(request.PageNumber));
-
-            if (request.PageSize < 1 || request.PageSize > 100)
-                throw new ArgumentException("Page size must be between 1 and 100.", nameof(request.PageSize));
-
             await using var connection = new NpgsqlConnection(_connection);
 
             const string sql = @"
