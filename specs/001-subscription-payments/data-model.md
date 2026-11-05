@@ -55,6 +55,8 @@ One money movement for a subscription period (or a future standalone payment).
 | Purpose | PaymentPurpose | `NewSubscription`, `Extension` |
 | Status | PaymentStatus | `Pending`, `Completed`, `Refunded`; this feature always creates `Completed` |
 | Note | string? | Optional free text (for example a cash-desk reference) |
+| IdempotencyKey | Guid? | Client-generated key; unique per member when present |
+| IdempotencyRequestHash | string? | SHA-256 hex of member, plan, duration, method, and purpose; detects key reuse with a different payload |
 
 ## Enums
 
@@ -95,6 +97,9 @@ Aggregates reference each other by `Id` only; no object navigation between
 - `Payments.PaidAt` is indexed for revenue range queries.
 - `Payments.Method` and `Payments.Purpose` are indexed only if revenue filtering
   proves slow; not required initially.
+- Unique filtered index `(MemberId, IdempotencyKey)` where `IdempotencyKey IS NOT NULL`;
+  replaying the same key with the same payload returns the stored result, while
+  a different payload is rejected as `idempotency.conflict`.
 - PostgreSQL exclusion constraint on `Subscriptions`:
   `EXCLUDE USING gist ("MemberId" WITH =, tstzrange("StartDate", "EndDate") WITH &&)`
   backed by the `btree_gist` extension. Only a violation of this named constraint

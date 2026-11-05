@@ -85,4 +85,16 @@ namespace Gym.Application.Common.Exceptions
         public TransientDataException(Exception innerException)
             : base(ErrorCodes.DataTransient, "A temporary data conflict occurred. Please retry.", innerException) { }
     }
+
+    public sealed class IdempotencyConflictException : AppException
+    {
+        public IdempotencyConflictException()
+            : base(ErrorCodes.IdempotencyConflict, "The idempotency key was reused with a different request payload.") { }
+    }
+
+    public sealed class IdempotencyKeyRequiredException : AppException
+    {
+        public IdempotencyKeyRequiredException()
+            : base(ErrorCodes.IdempotencyKeyRequired, "An Idempotency-Key header is required for cash-desk operations.") { }
+    }
 }

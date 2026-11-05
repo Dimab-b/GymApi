@@ -24,6 +24,7 @@ paths:
       summary: Member buys a subscription online
       parameters:
         - $ref: '#/components/parameters/MemberId'
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
@@ -48,6 +49,7 @@ paths:
       summary: Member renews a subscription online with any available plan
       parameters:
         - $ref: '#/components/parameters/MemberId'
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
@@ -72,6 +74,7 @@ paths:
       summary: Reception sells a subscription with cash or terminal
       parameters:
         - $ref: '#/components/parameters/MemberId'
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
@@ -96,6 +99,7 @@ paths:
       summary: Reception renews a subscription with cash or terminal
       parameters:
         - $ref: '#/components/parameters/MemberId'
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
@@ -209,6 +213,17 @@ components:
         minimum: 1
         maximum: 100
         default: 20
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: >
+        Client-generated GUID for retry-safe purchase/renewal. Required for
+        cash-desk operations; recommended for online operations. Reuse the same
+        key only for retries of the same logical operation.
+      schema:
+        type: string
+        format: uuid
   responses:
     BadRequest:
       description: Invalid input such as duration out of range or missing plan

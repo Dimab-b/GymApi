@@ -48,9 +48,12 @@ Expected: the configured plans with `pricePerMonth`, `currency`, and optional
 
 ## 5. Online purchase
 
+Set `$PURCHASE_KEY` to a new GUID. Reuse it only for retries of this purchase.
+
 ```powershell
 curl -X POST "http://localhost:5268/Member/$MEMBER_ID/profile/subscriptions/purchase" `
   -H "Content-Type: application/json" `
+  -H "Idempotency-Key: $PURCHASE_KEY" `
   -d '{"planCode":"unlimited","durationMonths":3}'
 ```
 
@@ -60,12 +63,17 @@ Expected:
 - Exactly one `Payment` with `Method = Online`, `Purpose = NewSubscription`,
   `Status = Completed`.
 - The period and payment are committed together.
+- Retrying with the same key and body returns the same `subscriptionId` and does
+  not create another payment.
 
 ## 6. Online renewal with a different plan
+
+Set `$RENEWAL_KEY` to a new GUID (a new logical operation, so not the purchase key).
 
 ```powershell
 curl -X POST "http://localhost:5268/Member/$MEMBER_ID/profile/subscriptions/extend" `
   -H "Content-Type: application/json" `
+  -H "Idempotency-Key: $RENEWAL_KEY" `
   -d '{"planCode":"monthly12","durationMonths":2}'
 ```
 
@@ -74,6 +82,8 @@ Expected:
 - The new period records `monthly12` and the current `monthly12` price.
 - The previous period is unchanged.
 - Exactly one new `Payment` with `Purpose = Extension`, `Method = Online`.
+- Retrying with the same key and body returns the same `subscriptionId` and does
+  not create another payment.
 
 ## 7. Prepayment cap
 
@@ -94,15 +104,19 @@ database, the exclusion constraint also prevents overlapping rows.
 
 ## 9. Cash-desk sale
 
+Set `$CASH_KEY` to a new GUID. The header is required for cash-desk operations.
+
 ```powershell
 curl -X POST "http://localhost:5268/Admin/members/$MEMBER_ID/subscriptions/purchase" `
   -H "Content-Type: application/json" `
+  -H "Idempotency-Key: $CASH_KEY" `
   -d '{"planCode":"monthly12","durationMonths":1,"method":"Cash"}'
 ```
 
 Expected: the same period/payment behavior as online purchase, with
 `Method = Cash` (or `Terminal`). A missing method or `Online` is rejected with
-HTTP 400 (`code: request.invalid`).
+HTTP 400 (`code: request.invalid`). A missing `Idempotency-Key` is rejected with
+HTTP 400 (`code: idempotency.key_required`).
 
 ## 10. Member payments
 
@@ -146,3 +160,25 @@ ORDER BY "StartDate";
 
 Expected: no overlapping ranges for the same member, every purchase/renewal has a
 matching payment, and all timestamps are UTC.
+
+## 14. Idempotency checks
+
+Repeat the online purchase from step 5 with the same `$PURCHASE_KEY` and the same
+body.
+
+Expected: HTTP 200 with the same `subscriptionId`; the payment count does not
+change.
+
+Repeat with the same key but a different duration (for example
+`durationMonths: 1`).
+
+Expected: HTTP 409 (`code: idempotency.conflict`); no new period or payment.
+
+Call the cash-desk purchase from step 9 without `Idempotency-Key`.
+
+Expected: HTTP 400 (`code: idempotency.key_required`).
+
+Repeat the cash-desk sale with the same `$CASH_KEY` and body.
+
+Expected: HTTP 200 with the same `subscriptionId`; the payment count does not
+change.

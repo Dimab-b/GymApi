@@ -46,9 +46,14 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
             .IsRequired();
 
         builder.Property(p => p.Note).HasMaxLength(500);
+        builder.Property(p => p.IdempotencyKey);
+        builder.Property(p => p.IdempotencyRequestHash).HasMaxLength(64);
 
         builder.HasIndex(p => p.MemberId);
         builder.HasIndex(p => p.SubscriptionId);
         builder.HasIndex(p => p.PaidAt);
+        builder.HasIndex(p => new { p.MemberId, p.IdempotencyKey })
+            .IsUnique()
+            .HasFilter("\"IdempotencyKey\" IS NOT NULL");
     }
 }

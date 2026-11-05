@@ -34,14 +34,21 @@ namespace Gym.Api.Controllers.ForClient
 
 
         [HttpPost("{id:guid}/profile/subscriptions/purchase")]
-        public async Task<ActionResult<PurchaseResultDto>> PurchaseSubscription(Guid id, [FromBody] PurchaseSubscriptionRequest request, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<PurchaseResultDto>> PurchaseSubscription(
+            Guid id,
+            [FromBody] PurchaseSubscriptionRequest request,
+            [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey = null,
+            CancellationToken cancellationToken = default)
         {
+            var parsedIdempotencyKey = ParseOptionalIdempotencyKey(idempotencyKey);
+
             var command = new PurchaseSubscriptionCommand(
                 id,
                 request.PlanCode,
                 request.DurationMonths,
                 PaymentMethod.Online,
-                PaymentPurpose.NewSubscription);
+                PaymentPurpose.NewSubscription,
+                parsedIdempotencyKey);
 
             var result = await _mediator.Send(command, cancellationToken);
 
@@ -51,14 +58,21 @@ namespace Gym.Api.Controllers.ForClient
 
 
         [HttpPost("{id:guid}/profile/subscriptions/extend")]
-        public async Task<ActionResult<PurchaseResultDto>> ExtendSubscription(Guid id, [FromBody] ExtendSubscriptionRequest request, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<PurchaseResultDto>> ExtendSubscription(
+            Guid id,
+            [FromBody] ExtendSubscriptionRequest request,
+            [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey = null,
+            CancellationToken cancellationToken = default)
         {
+            var parsedIdempotencyKey = ParseOptionalIdempotencyKey(idempotencyKey);
+
             var command = new PurchaseSubscriptionCommand(
                 id,
                 request.PlanCode,
                 request.DurationMonths,
                 PaymentMethod.Online,
-                PaymentPurpose.Extension);
+                PaymentPurpose.Extension,
+                parsedIdempotencyKey);
 
             var result = await _mediator.Send(command, cancellationToken);
 
@@ -140,6 +154,17 @@ namespace Gym.Api.Controllers.ForClient
             return NoContent();
         }
 
+
+        private static Guid? ParseOptionalIdempotencyKey(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+
+            if (!Guid.TryParse(value, out var idempotencyKey) || idempotencyKey == Guid.Empty)
+                throw new ArgumentException("Idempotency-Key must be a non-empty GUID.", nameof(value));
+
+            return idempotencyKey;
+        }
 
         public record PurchaseSubscriptionRequest(string PlanCode, int DurationMonths);
         public record ExtendSubscriptionRequest(string PlanCode, int DurationMonths);

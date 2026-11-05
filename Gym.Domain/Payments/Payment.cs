@@ -14,6 +14,8 @@ namespace Gym.Domain.Payments
         public PaymentPurpose Purpose { get; private set; }
         public PaymentStatus Status { get; private set; }
         public string? Note { get; private set; }
+        public Guid? IdempotencyKey { get; private set; }
+        public string? IdempotencyRequestHash { get; private set; }
 
         private Payment() { }
 
@@ -23,13 +25,21 @@ namespace Gym.Domain.Payments
             Price amount,
             PaymentMethod method,
             PaymentPurpose purpose,
-            string? note = null)
+            string? note = null,
+            Guid? idempotencyKey = null,
+            string? idempotencyRequestHash = null)
         {
             if (memberId == Guid.Empty)
                 throw new InvalidPaymentException("Member id must be filled.");
 
             if (subscriptionId == Guid.Empty)
                 throw new InvalidPaymentException("Subscription id must be a non-empty value when provided.");
+
+            if (idempotencyKey == Guid.Empty)
+                throw new InvalidPaymentException("Idempotency key must be a non-empty value when provided.");
+
+            if (idempotencyKey.HasValue && string.IsNullOrWhiteSpace(idempotencyRequestHash))
+                throw new InvalidPaymentException("Idempotency request hash must be provided with an idempotency key.");
 
             ArgumentNullException.ThrowIfNull(amount);
 
@@ -43,7 +53,9 @@ namespace Gym.Domain.Payments
                 Method = method,
                 Purpose = purpose,
                 Status = PaymentStatus.Completed,
-                Note = note
+                Note = note,
+                IdempotencyKey = idempotencyKey,
+                IdempotencyRequestHash = idempotencyRequestHash
             };
         }
     }
