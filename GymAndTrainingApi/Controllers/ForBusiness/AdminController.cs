@@ -2,6 +2,7 @@
 using Gym.Application.Bookings.Dto_s;
 using Gym.Application.Bookings.Queries;
 using Gym.Application.Common;
+using Gym.Application.Common.Exceptions;
 using Gym.Application.Members.Commands;
 using Gym.Application.Members.Dto_s;
 using Gym.Application.Members.Queries;
@@ -57,16 +58,22 @@ namespace Gym.Api.Controllers.ForBusiness
         }
 
         [HttpPost("members/{id:guid}/subscriptions/purchase")]
-        public async Task<ActionResult<PurchaseResultDto>> PurchaseSubscription(Guid id, [FromBody] CashDeskPurchaseRequest request, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<PurchaseResultDto>> PurchaseSubscription(
+            Guid id,
+            [FromBody] CashDeskPurchaseRequest request,
+            [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey = null,
+            CancellationToken cancellationToken = default)
         {
             var method = ResolveCashDeskMethod(request.Method);
+            var key = ResolveIdempotencyKey(idempotencyKey);
 
             var command = new PurchaseSubscriptionCommand(
                 id,
                 request.PlanCode,
                 request.DurationMonths,
                 method,
-                PaymentPurpose.NewSubscription);
+                PaymentPurpose.NewSubscription,
+                key);
 
             var result = await _mediator.Send(command, cancellationToken);
 
@@ -74,16 +81,22 @@ namespace Gym.Api.Controllers.ForBusiness
         }
 
         [HttpPost("members/{id:guid}/subscriptions/extend")]
-        public async Task<ActionResult<PurchaseResultDto>> ExtendSubscription(Guid id, [FromBody] CashDeskPurchaseRequest request, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<PurchaseResultDto>> ExtendSubscription(
+            Guid id,
+            [FromBody] CashDeskPurchaseRequest request,
+            [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey = null,
+            CancellationToken cancellationToken = default)
         {
             var method = ResolveCashDeskMethod(request.Method);
+            var key = ResolveIdempotencyKey(idempotencyKey);
 
             var command = new PurchaseSubscriptionCommand(
                 id,
                 request.PlanCode,
                 request.DurationMonths,
                 method,
-                PaymentPurpose.Extension);
+                PaymentPurpose.Extension,
+                key);
 
             var result = await _mediator.Send(command, cancellationToken);
 
@@ -199,6 +212,17 @@ namespace Gym.Api.Controllers.ForBusiness
                 throw new ArgumentException("Cash-desk operations accept only Cash or Terminal.", nameof(method));
 
             return parsed;
+        }
+
+        private static Guid ResolveIdempotencyKey(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new IdempotencyKeyRequiredException();
+
+            if (!Guid.TryParse(value, out var idempotencyKey) || idempotencyKey == Guid.Empty)
+                throw new ArgumentException("Idempotency-Key must be a non-empty GUID.", nameof(value));
+
+            return idempotencyKey;
         }
 
         public record CashDeskPurchaseRequest(string PlanCode, int DurationMonths, string? Method);

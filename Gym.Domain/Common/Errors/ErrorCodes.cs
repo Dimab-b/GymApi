@@ -39,6 +39,8 @@ namespace Gym.Domain.Common.Errors
         public const string ConcurrencyConflict = "concurrency.conflict";
         public const string DataConflict = "data.conflict";
         public const string DataTransient = "data.transient";
+        public const string IdempotencyConflict = "idempotency.conflict";
+        public const string IdempotencyKeyRequired = "idempotency.key_required";
         public const string ServerError = "server.error";
         public const string RequestCancelled = "request.cancelled";
     }

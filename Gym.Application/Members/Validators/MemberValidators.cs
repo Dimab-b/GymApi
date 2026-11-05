@@ -13,6 +13,9 @@ namespace Gym.Application.Members.Validators
             RuleFor(x => x.DurationMonths).InclusiveBetween(1, 12);
             RuleFor(x => x.Method).IsInEnum();
             RuleFor(x => x.Purpose).IsInEnum();
+            RuleFor(x => x.IdempotencyKey)
+                .Must(key => !key.HasValue || key.Value != Guid.Empty)
+                .WithMessage("Idempotency key must not be empty.");
         }
     }
 

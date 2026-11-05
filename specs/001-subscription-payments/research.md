@@ -116,6 +116,22 @@ payment currency; no conversion is performed.
 - Summing subscription period prices by their start date: misattributes money and
   cannot represent multiple payments for one period. Rejected.
 
+## Decision: Client-generated idempotency key stored on Payment
+
+**Rationale**: A purchase retry must not create a second period or payment. The
+client generates one GUID per logical checkout/sale, sends it in `Idempotency-Key`,
+and reuses it only for retries. The server stores it on `Payment` with a unique
+filtered index `(MemberId, IdempotencyKey)` and a request hash. A duplicate with
+the same payload returns the stored `PurchaseResultDto`; a different payload is
+rejected as `idempotency.conflict`. The key is optional for online operations and
+required for cash-desk operations.
+
+**Alternatives considered**:
+- Dedicated idempotency table: more flexible for failed/in-progress attempts, but
+  unnecessary while every purchase produces exactly one payment.
+- Using `Payment.Id`/`SubscriptionId` as the HTTP key: rejected because the client
+  does not know those identifiers before the first request.
+
 ## Decision: Read side uses Dapper queries and DTOs
 
 **Rationale**: Payment lists and revenue reports are read-only projections; Dapper

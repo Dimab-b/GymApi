@@ -121,6 +121,13 @@ namespace Gym.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("IdempotencyKey")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("IdempotencyRequestHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<Guid>("MemberId")
                         .HasColumnType("uuid");
 
@@ -156,6 +163,10 @@ namespace Gym.Infrastructure.Migrations
                     b.HasIndex("PaidAt");
 
                     b.HasIndex("SubscriptionId");
+
+                    b.HasIndex("MemberId", "IdempotencyKey")
+                        .IsUnique()
+                        .HasFilter("\"IdempotencyKey\" IS NOT NULL");
 
                     b.ToTable("Payments", (string)null);
                 });

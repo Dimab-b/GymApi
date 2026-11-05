@@ -46,6 +46,8 @@ namespace Gym.Api.Infrastructure
                 [ErrorCodes.ConcurrencyConflict] = new(409, "Конфлікт змін"),
                 [ErrorCodes.DataConflict] = new(409, "Конфлікт даних"),
                 [ErrorCodes.DataTransient] = new(503, "Тимчасова помилка даних"),
+                [ErrorCodes.IdempotencyConflict] = new(409, "Конфлікт ідемпотентності"),
+                [ErrorCodes.IdempotencyKeyRequired] = new(400, "Потрібен Idempotency-Key"),
                 [ErrorCodes.RequestCancelled] = new(503, "Запит скасовано"),
                 [ErrorCodes.ServerError] = new(500, "Внутрішня помилка сервера")
             };
