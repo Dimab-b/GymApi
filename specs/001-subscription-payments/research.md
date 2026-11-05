@@ -125,14 +125,14 @@ matches the existing read-side convention and avoids tracking overhead.
 - EF Core for reports: heavier and inconsistent with existing query handlers.
   Rejected.
 
-## Known gap: error status mapping is deferred
+## Resolved: error status mapping
 
-**Rationale**: The project has no global exception middleware yet. Command
-handlers will throw domain/application exceptions for rejected operations
-(missing plan, invalid duration, overlap, cap exceeded). Mapping these to `400`,
-`404`, and `409` is deferred with the middleware work. The quickstart validates
-rejection behavior; status-code mapping is tracked as technical debt.
+**Rationale**: `GlobalExceptionHandler` (IExceptionHandler) uses `ErrorCatalog`
+and RFC 9457 ProblemDetails to map domain, application, and infrastructure
+failures to 400/401/403/404/409/503/500 with a stable `code` and `traceId`.
+FluentValidation failures become 400 `validation.failed` with `errors`;
+`UseStatusCodePages` covers empty error status responses, and
+`InvalidModelStateResponseFactory` covers model binding.
 
-**Risk**: Until the middleware lands, a rejected purchase may surface as a server
-error. This does not change correctness but must be resolved before public
-release.
+**Residual risk**: configuration errors, such as a missing connection string,
+remain 500 by design; they are not business rejections.

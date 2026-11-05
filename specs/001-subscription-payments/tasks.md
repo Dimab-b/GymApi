@@ -103,7 +103,7 @@ period and payment shape as online, with `Method = Cash`; repeating with
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Update `GymAndTrainingApi/Controllers/ForBusiness/AdminController.cs`: add `CashDeskPurchaseRequest(string PlanCode, int DurationMonths, PaymentMethod? Method)` so a missing method is not silently treated as `Cash`; add `POST members/{id:guid}/subscriptions/purchase` and `POST members/{id:guid}/subscriptions/extend`; reject `Method` that is null or not `Cash`/`Terminal` with `ArgumentException`; send the shared `PurchaseSubscriptionCommand` with `request.Method.Value` and `PaymentPurpose.NewSubscription` or `PaymentPurpose.Extension`; return `Ok(PurchaseResultDto)`; add `using Gym.Domain.Payments;`; depends on T017.
+- [X] T021 [US2] Update `GymAndTrainingApi/Controllers/ForBusiness/AdminController.cs`: add `CashDeskPurchaseRequest(string PlanCode, int DurationMonths, string? Method)` so a missing method is not silently treated as `Cash`; add `POST members/{id:guid}/subscriptions/purchase` and `POST members/{id:guid}/subscriptions/extend`; parse `Method` with `Enum.TryParse<PaymentMethod>` and reject null/not `Cash`/`Terminal` with `ArgumentException`; send the shared `PurchaseSubscriptionCommand` with the parsed method and `PaymentPurpose.NewSubscription` or `PaymentPurpose.Extension`; return `Ok(PurchaseResultDto)`; add `using Gym.Domain.Payments;`; depends on T017.
 
 **Checkpoint**: US1 and US2 are both functional. They share one command; the only
 difference is the endpoint and the payment method.
@@ -141,7 +141,7 @@ not from subscription dates or prices.
 - [X] T028 Run `dotnet ef migrations has-pending-model-changes --project Gym.Infrastructure --startup-project GymAndTrainingApi/Gym.Api.csproj` and confirm it reports no pending changes.
 - [X] T029 Execute the scenarios in `specs/001-subscription-payments/quickstart.md`: online purchase and renewal, plan switch, 12-month cap, concurrent purchase conflict, cash and terminal sales, banned member, member payments, and revenue with filters; record the actual results.
 - [X] T030 Review `git diff` and `git status`: confirm no secrets, `.env`, connection strings, or old hardcoded prices (600/400) are present; do not commit or push unless explicitly requested.
-- [X] T031 Verify the implemented routes, request bodies, and response shapes match `specs/001-subscription-payments/contracts/subscription-payments.openapi.yaml` (200 responses, `PurchaseResultDto`, grouped revenue totals); update the contract only for a deliberate deviation.
+- [X] T031 Verify the implemented routes, request bodies, and response shapes match `specs/001-subscription-payments/contracts/subscription-payments.openapi.yaml` (200 responses, `PurchaseResultDto`, grouped revenue totals, ProblemDetails with `code`/`traceId` for 400/404/409); update the contract only for a deliberate deviation.
 
 ---
 

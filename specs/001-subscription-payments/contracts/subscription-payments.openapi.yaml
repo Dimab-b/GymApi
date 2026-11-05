@@ -140,6 +140,14 @@ paths:
                     type: integer
                   pageSize:
                     type: integer
+                  totalPages:
+                    type: integer
+                  hasNextPage:
+                    type: boolean
+                  hasPreviousPage:
+                    type: boolean
+        '400':
+          $ref: '#/components/responses/BadRequest'
   /Admin/revenue:
     get:
       summary: Revenue for a date range
@@ -337,9 +345,25 @@ components:
       properties:
         type:
           type: string
+          format: uri
         title:
           type: string
         status:
           type: integer
         detail:
           type: string
+        instance:
+          type: string
+        code:
+          type: string
+          description: Stable machine-readable error code.
+        traceId:
+          type: string
+          description: Correlation id for logs and support.
+        errors:
+          type: object
+          description: Field validation errors; present for validation.failed.
+          additionalProperties:
+            type: array
+            items:
+              type: string

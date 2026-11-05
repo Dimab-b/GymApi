@@ -25,7 +25,7 @@ Expected: build succeeds with 0 errors.
 ## 2. Apply migrations
 
 ```powershell
-dotnet ef database update --project GymAndTrainingApi
+dotnet ef database update --project Gym.Infrastructure --startup-project GymAndTrainingApi/Gym.Api.csproj
 ```
 
 Expected: the `Payments` table and the subscription exclusion constraint are
@@ -34,13 +34,13 @@ created; no pending model changes remain.
 ## 3. Run the API
 
 ```powershell
-dotnet run --project GymAndTrainingApi
+dotnet run --project GymAndTrainingApi/Gym.Api.csproj --launch-profile http
 ```
 
 ## 4. List plans
 
 ```powershell
-curl "https://localhost:5001/Member/subscription-plans"
+curl "http://localhost:5268/Member/subscription-plans"
 ```
 
 Expected: the configured plans with `pricePerMonth`, `currency`, and optional
@@ -49,7 +49,7 @@ Expected: the configured plans with `pricePerMonth`, `currency`, and optional
 ## 5. Online purchase
 
 ```powershell
-curl -X POST "https://localhost:5001/Member/$MEMBER_ID/profile/subscriptions/purchase" `
+curl -X POST "http://localhost:5268/Member/$MEMBER_ID/profile/subscriptions/purchase" `
   -H "Content-Type: application/json" `
   -d '{"planCode":"unlimited","durationMonths":3}'
 ```
@@ -64,7 +64,7 @@ Expected:
 ## 6. Online renewal with a different plan
 
 ```powershell
-curl -X POST "https://localhost:5001/Member/$MEMBER_ID/profile/subscriptions/extend" `
+curl -X POST "http://localhost:5268/Member/$MEMBER_ID/profile/subscriptions/extend" `
   -H "Content-Type: application/json" `
   -d '{"planCode":"monthly12","durationMonths":2}'
 ```
@@ -80,46 +80,46 @@ Expected:
 Create enough future periods so the total coverage would exceed 12 months from
 the start of the earliest current/future period, then attempt one more purchase.
 
-Expected: the request is rejected and no period or payment is created. The cap is
-measured from the earliest current/future period start, not from today.
+Expected: the request is rejected with HTTP 409 (`code: subscription.coverage_exceeded`)
+and no period or payment is created. The cap is measured from the earliest
+current/future period start, not from today.
 
 ## 8. Concurrent purchase
 
 Send two purchases for the same member at the same time.
 
-Expected: one succeeds; the other is rejected as a conflict and creates no period
-or payment. In the database, the exclusion constraint prevents overlapping rows.
-
-Note: until the global exception middleware lands, a rejected request may surface
-as a server error instead of HTTP 409. Verify the absence of the period/payment
-row as the correctness criterion; status mapping is tracked as technical debt.
+Expected: one succeeds with HTTP 200; the other is rejected with HTTP 409
+(`code: subscription.period_conflict`) and creates no period or payment. In the
+database, the exclusion constraint also prevents overlapping rows.
 
 ## 9. Cash-desk sale
 
 ```powershell
-curl -X POST "https://localhost:5001/Admin/members/$MEMBER_ID/subscriptions/purchase" `
+curl -X POST "http://localhost:5268/Admin/members/$MEMBER_ID/subscriptions/purchase" `
   -H "Content-Type: application/json" `
   -d '{"planCode":"monthly12","durationMonths":1,"method":"Cash"}'
 ```
 
 Expected: the same period/payment behavior as online purchase, with
-`Method = Cash` (or `Terminal`).
+`Method = Cash` (or `Terminal`). A missing method or `Online` is rejected with
+HTTP 400 (`code: request.invalid`).
 
 ## 10. Member payments
 
 ```powershell
-curl "https://localhost:5001/Admin/members/$MEMBER_ID/payments?pageNumber=1&pageSize=20"
+curl "http://localhost:5268/Admin/members/$MEMBER_ID/payments?pageNumber=1&pageSize=20"
 ```
 
 Expected: the member's payments newest first, with amount, currency, method,
-purpose, status, and timestamps.
+purpose, status, and timestamps. An unknown member returns HTTP 200 with an
+empty page.
 
 ## 11. Revenue
 
 ```powershell
-curl "https://localhost:5001/Admin/revenue?from=2026-11-01&to=2026-11-30"
-curl "https://localhost:5001/Admin/revenue?from=2026-11-01&to=2026-11-30&method=Cash"
-curl "https://localhost:5001/Admin/revenue?from=2026-11-01&to=2026-11-30&purpose=Extension"
+curl "http://localhost:5268/Admin/revenue?from=2026-11-01&to=2026-11-30"
+curl "http://localhost:5268/Admin/revenue?from=2026-11-01&to=2026-11-30&method=Cash"
+curl "http://localhost:5268/Admin/revenue?from=2026-11-01&to=2026-11-30&purpose=Extension"
 ```
 
 Expected:
@@ -132,14 +132,14 @@ Expected:
 
 Ban the member, then attempt a purchase and a renewal.
 
-Expected: both are rejected; no period or payment is created, and existing
-current/future periods are cancelled by the ban.
+Expected: both are rejected with HTTP 409 (`code: member.banned`); no period or
+payment is created, and existing current/future periods are cancelled by the ban.
 
 ## 13. Database checks
 
 ```sql
 SELECT * FROM "Payments" ORDER BY "PaidAt" DESC;
-SELECT "MemberId", "StartDate", "EndDate", "PlanCode", "Price"
+SELECT "MemberId", "StartDate", "EndDate", "PlanCode", "PriceAmount", "PriceCurrency"
 FROM "Subscriptions"
 ORDER BY "StartDate";
 ```
