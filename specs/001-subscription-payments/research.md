@@ -132,6 +132,20 @@ required for cash-desk operations.
 - Using `Payment.Id`/`SubscriptionId` as the HTTP key: rejected because the client
   does not know those identifiers before the first request.
 
+## Decision: Business dates use the gym time zone
+
+**Rationale**: Instants (`PaidAt`, `StartDate`, `EndDate`) are stored in UTC.
+Business date filters (`from`/`to` in revenue, the booking admin range, and
+trainer availability `Date`) are interpreted in `Gym:TimeZone` (default
+`Europe/Kyiv`) and converted to UTC boundaries at the query edge. This keeps DST
+and multi-host behavior correct without storing local wall-clock times.
+
+**Alternatives considered**:
+- Store local timestamps: rejected because DST makes them ambiguous and
+  comparisons across hosts/zones break.
+- Use the database session time zone: rejected because behavior would depend on
+  the database connection configuration.
+
 ## Decision: Read side uses Dapper queries and DTOs
 
 **Rationale**: Payment lists and revenue reports are read-only projections; Dapper

@@ -137,6 +137,8 @@ curl "http://localhost:5268/Admin/revenue?from=2026-11-01&to=2026-11-30&purpose=
 ```
 
 Expected:
+- `from`/`to` are local dates in `Gym:TimeZone` (default `Europe/Kyiv`);
+  stored timestamps remain UTC.
 - Revenue is grouped by currency; each entry equals the sum of payments in that
   currency with `PaidAt` in the inclusive range.
 - Method and purpose filters narrow the result.

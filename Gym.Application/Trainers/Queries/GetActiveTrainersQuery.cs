@@ -25,7 +25,7 @@ namespace Gym.Application.Trainers.Queries
         {
             await using var connection = new NpgsqlConnection(_connection);
 
-            int offset = (query.PageNumber - 1) * query.PageSize;
+            long offset = (long)(query.PageNumber - 1) * query.PageSize;
 
             var whereConditions = new List<string>();
             var parameters = new DynamicParameters();

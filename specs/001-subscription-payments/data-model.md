@@ -108,6 +108,9 @@ Aggregates reference each other by `Id` only; no object navigation between
   violations are not reclassified.
 - All Guid primary keys are domain-assigned: `ValueGeneratedNever()`.
 - All date/time columns are `timestamptz` and written in UTC.
+- Date-only filters (revenue `from`/`to`, booking admin range, trainer
+  availability `Date`) are interpreted in `Gym:TimeZone` (default
+  `Europe/Kyiv`) and converted to UTC boundaries; stored instants remain UTC.
 
 ## State transitions
 

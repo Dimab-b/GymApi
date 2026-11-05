@@ -168,6 +168,9 @@ namespace Gym.Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("\"IdempotencyKey\" IS NOT NULL");
 
+                    b.HasIndex("MemberId", "PaidAt")
+                        .IsDescending(false, true);
+
                     b.ToTable("Payments", (string)null);
                 });
 

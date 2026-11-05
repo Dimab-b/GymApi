@@ -33,11 +33,12 @@ namespace Gym.Application.Members.Queries
 
             SELECT DISTINCT ON (s.""MemberId"")
                 s.""Id"", s.""MemberId"", s.""StartDate"", s.""EndDate"", s.""PriceAmount"", s.""PriceCurrency"",
-                (CURRENT_TIMESTAMP >= s.""StartDate"" AND CURRENT_TIMESTAMP <= s.""EndDate"") AS ""IsActive""
+                (s.""StartDate"" <= @Now AND s.""EndDate"" > @Now) AS ""IsActive""
             FROM ""Subscriptions"" s
             ORDER BY s.""MemberId"", s.""StartDate"" DESC;";
 
-            using var multi = await connection.QueryMultipleAsync(new CommandDefinition(sql, cancellationToken: cancellationToken));
+            using var multi = await connection.QueryMultipleAsync(
+                new CommandDefinition(sql, new { Now = DateTime.UtcNow }, cancellationToken: cancellationToken));
 
             var members = (await multi.ReadAsync<MemberReadDto>()).ToList();
             var latestSubscriptions = (await multi.ReadAsync<SubscriptionRow>()).ToList();

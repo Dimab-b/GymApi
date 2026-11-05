@@ -1,4 +1,5 @@
 using Dapper;
+using Gym.Application.Common.Time;
 using Gym.Application.Payments.Dto_s;
 using Gym.Domain.Payments;
 using MediatR;
@@ -16,19 +17,21 @@ namespace Gym.Application.Payments.Queries
     public class GetRevenueQueryHandler : IRequestHandler<GetRevenueQuery, RevenueDto>
     {
         private readonly string _connection;
+        private readonly GymTimeZone _timeZone;
 
-        public GetRevenueQueryHandler(IConfiguration configuration)
+        public GetRevenueQueryHandler(IConfiguration configuration, GymTimeZone timeZone)
         {
             _connection = configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string is missing.");
+            _timeZone = timeZone;
         }
 
         public async Task<RevenueDto> Handle(
             GetRevenueQuery request,
             CancellationToken cancellationToken = default)
         {
-            var fromUtc = request.From.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
-            var toExclusiveUtc = request.To.AddDays(1).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+            var fromUtc = _timeZone.ToUtc(request.From);
+            var toExclusiveUtc = _timeZone.ToUtc(request.To.AddDays(1));
 
             await using var connection = new NpgsqlConnection(_connection);
 

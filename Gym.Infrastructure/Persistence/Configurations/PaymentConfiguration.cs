@@ -52,6 +52,8 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.HasIndex(p => p.MemberId);
         builder.HasIndex(p => p.SubscriptionId);
         builder.HasIndex(p => p.PaidAt);
+        builder.HasIndex(p => new { p.MemberId, p.PaidAt })
+            .IsDescending(false, true);
         builder.HasIndex(p => new { p.MemberId, p.IdempotencyKey })
             .IsUnique()
             .HasFilter("\"IdempotencyKey\" IS NOT NULL");

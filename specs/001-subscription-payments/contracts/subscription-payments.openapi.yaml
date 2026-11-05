@@ -159,12 +159,14 @@ paths:
         - name: from
           in: query
           required: true
+          description: Local start date in Gym:TimeZone (default Europe/Kyiv).
           schema:
             type: string
             format: date
         - name: to
           in: query
           required: true
+          description: Local end date in Gym:TimeZone (default Europe/Kyiv), inclusive.
           schema:
             type: string
             format: date

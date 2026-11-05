@@ -39,8 +39,8 @@ Windows with Docker Compose and native PostgreSQL.
 spec: a purchase or renewal completes in under 2 minutes. Otherwise standard web
 expectations; no hot-path optimization required for the expected gym volume.
 
-**Constraints**: All timestamps UTC (`timestamptz`); subscription periods must not
-overlap; prepaid coverage capped at 12 months from the first current/future
+**Constraints**: All timestamps UTC (`timestamptz`); business date filters use
+`Gym:TimeZone` (default `Europe/Kyiv`); subscription periods must not overlap; prepaid coverage capped at 12 months from the first current/future
 period; one currency per plan; no currency conversion; revenue grouped by
 currency; payment considered completed at the moment of sale; no external
 payment provider, refunds, or invoicing.

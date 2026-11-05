@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Gym.Application.Common.Time;
 using Gym.Application.Trainers.Dto_s;
 using Gym.Domain.Bookings;
 using MediatR;
@@ -16,18 +17,20 @@ namespace Gym.Application.Trainers.Queries
     public class GetTrainerAvailabilityQueryHandler : IRequestHandler<GetTrainerAvailabilityQuery ,List<AvailableSlotDto>>
     {
         private readonly string _connection;
+        private readonly GymTimeZone _timeZone;
 
-        public GetTrainerAvailabilityQueryHandler(IConfiguration configuration)
+        public GetTrainerAvailabilityQueryHandler(IConfiguration configuration, GymTimeZone timeZone)
         {
             _connection = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string is missing.");
+            _timeZone = timeZone;
         }
 
         public async Task<List<AvailableSlotDto>> Handle(GetTrainerAvailabilityQuery query , CancellationToken cancellationToken = default)
         {
             await using var connection = new NpgsqlConnection(_connection);
 
-            var startOfDay = query.Date.ToDateTime(new TimeOnly(0, 0), DateTimeKind.Utc);
-            var endOfDay = startOfDay.AddDays(1);
+            var startOfDay = _timeZone.ToUtc(query.Date);
+            var endOfDay = _timeZone.ToUtc(query.Date.AddDays(1));
 
             var sql = @"
             SELECT ""StartTime"", ""EndTime"" 
@@ -53,11 +56,14 @@ namespace Gym.Application.Trainers.Queries
             while (currentSlotStart + sessionDuration <= workEnd)
             {
                 var currentSlotEnd = currentSlotStart + sessionDuration;
-                var currentSlotDateTime = query.Date.ToDateTime(TimeOnly.FromTimeSpan(currentSlotStart), DateTimeKind.Utc);
+                var currentSlotDateTime = _timeZone.ToUtc(
+                    query.Date.ToDateTime(
+                        TimeOnly.FromTimeSpan(currentSlotStart),
+                        DateTimeKind.Unspecified));
 
                 bool isBooked = bookedSlots.Any(b =>
-                    currentSlotStart <b.EndTime.TimeOfDay &&
-                    currentSlotEnd > b.StartTime.TimeOfDay);
+                    currentSlotStart < _timeZone.ToLocalTimeOfDay(b.EndTime) &&
+                    currentSlotEnd > _timeZone.ToLocalTimeOfDay(b.StartTime));
                 bool isTooSoon = currentSlotDateTime < now.AddHours(12);
 
                 if (!isBooked && !isTooSoon)

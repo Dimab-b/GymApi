@@ -1,6 +1,7 @@
 using Dapper;
 using Gym.Application.Bookings.Dto_s;
 using Gym.Application.Common;
+using Gym.Application.Common.Time;
 using Gym.Domain.Bookings;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -25,10 +26,12 @@ namespace Gym.Application.Bookings.Queries
     public class GetBookingsAdminQueryHandler : IRequestHandler<GetBookingsAdminQuery, PagedResult<BookingAdminDto>>
     {
         private readonly string _connection;
+        private readonly GymTimeZone _timeZone;
 
-        public GetBookingsAdminQueryHandler(IConfiguration configuration)
+        public GetBookingsAdminQueryHandler(IConfiguration configuration, GymTimeZone timeZone)
         {
             _connection = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string is missing.");
+            _timeZone = timeZone;
         }
 
         public async Task<PagedResult<BookingAdminDto>> Handle(GetBookingsAdminQuery request, CancellationToken cancellationToken = default)
@@ -37,7 +40,9 @@ namespace Gym.Application.Bookings.Queries
 
             var page = request.Page < 1 ? 1 : request.Page;
             var pageSize = request.PageSize < 1 ? 10 : request.PageSize;
-            var offset = (page - 1) * pageSize;
+            var offset = (long)(page - 1) * pageSize;
+            var fromUtc = request.From.HasValue ? _timeZone.ToUtc(request.From.Value) : (DateTime?)null;
+            var toUtc = request.To.HasValue ? _timeZone.ToUtc(request.To.Value) : (DateTime?)null;
 
             var sql = @"
         SELECT 
@@ -74,8 +79,8 @@ namespace Gym.Application.Bookings.Queries
 
             var parameters = new
             {
-                request.From,
-                request.To,
+                From = fromUtc,
+                To = toUtc,
                 request.TrainerId,
                 request.MemberId,
                 Status = request.Status?.ToString(),

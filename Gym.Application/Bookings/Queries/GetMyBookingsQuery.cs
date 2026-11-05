@@ -25,7 +25,7 @@ namespace Gym.Application.Bookings.Queries
         public async Task<PagedResult<BookingReadDto>> Handle(GetMyBookingsQuery request , CancellationToken cancellationToken = default)
         {
             await using var connection = new NpgsqlConnection(_connection);
-            int offset = (request.PageNumber - 1) * request.PageSize;
+            long offset = (long)(request.PageNumber - 1) * request.PageSize;
 
             string? statusParam = string.IsNullOrWhiteSpace(request.Status) ? null : request.Status.Trim();
 

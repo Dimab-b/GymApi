@@ -32,6 +32,9 @@ namespace Gym.Infrastructure
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection");
 
+            if (string.IsNullOrWhiteSpace(connectionString))
+                throw new InvalidOperationException("ConnectionStrings:DefaultConnection is not configured.");
+
             services.AddScoped<DispatchDomainEventsInterceptor>();
             services.AddDbContext<AppDbContext>((sp, options) =>
                 options.UseNpgsql(connectionString, x => x.MigrationsAssembly("Gym.Infrastructure"))
