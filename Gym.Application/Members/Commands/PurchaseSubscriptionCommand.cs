@@ -46,34 +46,39 @@ namespace Gym.Application.Members.Commands
             if (!Enum.IsDefined(command.Purpose))
                 throw new ArgumentException("Payment purpose is invalid.", nameof(command.Purpose));
 
-            var member = await _memberRepository.GetByIdAsync(command.MemberId, cancellationToken)
-                ?? throw new KeyNotFoundException($"Member with ID {command.MemberId} was not found.");
-
             var plan = _planProvider.GetByCode(command.PlanCode)
                 ?? throw new InvalidOperationException($"Plan '{command.PlanCode}' is not available.");
 
-            var subscription = member.PurchaseSubscription(
-                plan.Code,
-                plan.PricePerMonth,
-                plan.Currency,
-                command.DurationMonths,
-                plan.VisitLimitPerMonth);
+            return await _uow.ExecuteInTransactionAsync(async ct =>
+            {
+                await _memberRepository.LockForPurchaseAsync(command.MemberId, ct);
 
-            var payment = Payment.Create(
-                member.Id,
-                subscription.Id,
-                subscription.Price,
-                command.Method,
-                command.Purpose);
+                var member = await _memberRepository.GetByIdAsync(command.MemberId, ct)
+                    ?? throw new KeyNotFoundException($"Member with ID {command.MemberId} was not found.");
 
-            _paymentRepository.Add(payment);
+                var subscription = member.PurchaseSubscription(
+                    plan.Code,
+                    plan.PricePerMonth,
+                    plan.Currency,
+                    command.DurationMonths,
+                    plan.VisitLimitPerMonth);
 
-            await _uow.SaveChangesAsync(cancellationToken);
+                var payment = Payment.Create(
+                    member.Id,
+                    subscription.Id,
+                    subscription.Price,
+                    command.Method,
+                    command.Purpose);
 
-            return new PurchaseResultDto(
-                subscription.Id,
-                subscription.Price.Value,
-                subscription.Price.Currency);
+                _paymentRepository.Add(payment);
+
+                await _uow.SaveChangesAsync(ct);
+
+                return new PurchaseResultDto(
+                    subscription.Id,
+                    subscription.Price.Value,
+                    subscription.Price.Currency);
+            }, cancellationToken);
         }
     }
 }

@@ -41,12 +41,13 @@ expectations; no hot-path optimization required for the expected gym volume.
 
 **Constraints**: All timestamps UTC (`timestamptz`); subscription periods must not
 overlap; prepaid coverage capped at 12 months from the first current/future
-period; one currency per plan; payment considered completed at the moment of
-sale; no external payment provider, refunds, or invoicing.
+period; one currency per plan; no currency conversion; revenue grouped by
+currency; payment considered completed at the moment of sale; no external
+payment provider, refunds, or invoicing.
 
 **Scale/Scope**: Small/medium single-gym deployment with a handful of configured
-plans, moderate member and payment volume. No multi-tenant or multi-currency
-requirements.
+plans, moderate member and payment volume. No multi-tenant or FX-conversion
+requirements; revenue is grouped by currency.
 
 ## Constitution Check
 

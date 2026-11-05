@@ -123,9 +123,10 @@ curl "https://localhost:5001/Admin/revenue?from=2026-11-01&to=2026-11-30&purpose
 ```
 
 Expected:
-- The total equals the sum of payments with `PaidAt` in the inclusive range.
+- Revenue is grouped by currency; each entry equals the sum of payments in that
+  currency with `PaidAt` in the inclusive range.
 - Method and purpose filters narrow the result.
-- A range with no payments returns 0 for the plan currency.
+- A range with no payments returns `totals: []`.
 
 ## 12. Ban and renewal
 

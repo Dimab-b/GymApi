@@ -22,19 +22,23 @@ namespace Gym.Application.Members.Commands
 
         public async Task<bool> Handle(BanClientByIdCommand command , CancellationToken cancellationToken = default)
         {
-            var member = await _memberRepository.GetByIdAsync(command.Id, cancellationToken);
-
-            if (member == null)
+            return await _uow.ExecuteInTransactionAsync(async ct =>
             {
-                throw new KeyNotFoundException("That member not found");
-            }
+                await _memberRepository.LockForBanAsync(command.Id, ct);
 
+                var member = await _memberRepository.GetByIdAsync(command.Id, ct);
 
-            member.BanUser();
+                if (member == null)
+                {
+                    throw new KeyNotFoundException("That member not found");
+                }
 
-            await _uow.SaveChangesAsync(cancellationToken);
+                member.BanUser();
 
-            return true;
+                await _uow.SaveChangesAsync(ct);
+
+                return true;
+            }, cancellationToken);
         }
     }
 }

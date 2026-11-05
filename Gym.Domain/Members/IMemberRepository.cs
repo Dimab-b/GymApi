@@ -10,6 +10,8 @@ namespace Gym.Domain.Members
         Task<Member?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task<Member?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default);
         Task<bool> ExistsByEmailAsync(Email email, CancellationToken cancellationToken = default);
+        Task LockForPurchaseAsync(Guid id, CancellationToken cancellationToken = default);
+        Task LockForBanAsync(Guid id, CancellationToken cancellationToken = default);
         void Add(Member member);
         void Update(Member member);
     }

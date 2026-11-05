@@ -9,5 +9,6 @@ namespace Gym.Application.Common.SubscriptionPlans
         string Name,
         decimal PricePerMonth,
         string Currency,
-        int? VisitLimitPerMonth);
+        int? VisitLimitPerMonth,
+        bool IsAvailable);
 }

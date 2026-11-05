@@ -109,7 +109,8 @@ refund flows without changing the contract now.
 
 **Rationale**: The finance source of truth is the payment record, so revenue is
 computed from `PaidAt`, not from subscription start dates or plan prices. This
-stays correct when prices change or plans are replaced.
+stays correct when prices change or plans are replaced. Revenue is grouped by
+payment currency; no conversion is performed.
 
 **Alternatives considered**:
 - Summing subscription period prices by their start date: misattributes money and

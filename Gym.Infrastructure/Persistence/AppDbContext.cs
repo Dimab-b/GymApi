@@ -43,7 +43,27 @@ namespace Gym.Infrastructure.Persistence
                 pg.ConstraintName == "EX_Subscriptions_MemberId_Period")
             {
                 throw new SubscriptionConflictException(
-                    "A subscription period for this member overlaps an existing period.");
+                    "A subscription period for this member overlaps an existing period.",
+                    ex);
+            }
+        }
+
+        public async Task<T> ExecuteInTransactionAsync<T>(
+            Func<CancellationToken, Task<T>> action,
+            CancellationToken cancellationToken = default)
+        {
+            await using var transaction = await Database.BeginTransactionAsync(cancellationToken);
+
+            try
+            {
+                var result = await action(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+                return result;
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
             }
         }
     }
