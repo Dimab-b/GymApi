@@ -35,12 +35,15 @@ namespace Gym.Application.Members.Queries
             ""EndDate"",
             ""PriceAmount"",
             ""PriceCurrency"",
-            (CURRENT_TIMESTAMP >= ""StartDate"" AND CURRENT_TIMESTAMP <= ""EndDate"") AS ""IsActive""
+            (""StartDate"" <= @Now AND ""EndDate"" > @Now) AS ""IsActive""
         FROM ""Subscriptions""
         WHERE ""MemberId"" = @Id;
     ";
 
-            var command = new CommandDefinition(sql, new { Id = request.Id }, cancellationToken: cancellationToken);
+            var command = new CommandDefinition(
+                sql,
+                new { Id = request.Id, Now = DateTime.UtcNow },
+                cancellationToken: cancellationToken);
 
             using var multi = await connection.QueryMultipleAsync(command);
 
