@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Gym.Application.Common.Exceptions;
 using Gym.Application.Members.Dto_s;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -39,7 +40,7 @@ namespace Gym.Application.Members.Queries
 
             if (query == null)
             {
-                throw new KeyNotFoundException($"Member with Id {request.Id} not found.");
+                throw new MemberNotFoundException(request.Id);
             }
 
             return query;

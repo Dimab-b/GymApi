@@ -34,9 +34,9 @@ namespace Gym.Domain.Bookings
         public static SessionBooking Create(Guid memberId ,Guid trainerId , DateTime startTime, Price price)
         {
             if (startTime < DateTime.UtcNow.AddHours(12))
-                throw new ArgumentException("You must book a workout at least 12 hours in advance.");
+                throw new BookingTimeWindowException("You must book a workout at least 12 hours in advance.");
             if (startTime > DateTime.UtcNow.AddDays(30))
-                throw new ArgumentException("You cannot book a workout more than 30 days in advance.");
+                throw new BookingTimeWindowException("You cannot book a workout more than 30 days in advance.");
 
 
             var session = new SessionBooking(Guid.NewGuid() , memberId , trainerId , startTime , startTime.AddHours(1) , BookingStatus.Scheduled , price);
@@ -58,9 +58,9 @@ namespace Gym.Domain.Bookings
             if (this.Status == BookingStatus.Cancelled)
                 return;
             if (this.Status == BookingStatus.Completed)
-                throw new InvalidOperationException("You cannot cancel the session that already has been completed");
+                throw new BookingAlreadyCompletedException();
             if (this.StartTime < DateTime.UtcNow.AddDays(1))
-                throw new InvalidOperationException("Session cannot be canceled less than 24 hours in advance");
+                throw new BookingCancellationTooLateException();
 
             this.Status = BookingStatus.Cancelled;
 
@@ -76,7 +76,7 @@ namespace Gym.Domain.Bookings
         public void CancelBySystem(string reason)
         {
             if (this.Status == BookingStatus.Completed)
-                throw new InvalidOperationException("You cannot cancel the session that already has been completed");
+                throw new BookingAlreadyCompletedException();
             if (this.Status == BookingStatus.Cancelled)
                 return;
             this.Status = BookingStatus.Cancelled;
@@ -92,9 +92,9 @@ namespace Gym.Domain.Bookings
         public void Complete()
         {
             if (this.Status == BookingStatus.Cancelled)
-                throw new InvalidOperationException("You cannot complete a session that was cancelled");
+                throw new BookingCannotCompleteException("You cannot complete a session that was cancelled.");
             if (this.EndTime > DateTime.UtcNow)
-                throw new InvalidOperationException("You cannot complete a session before its end time");
+                throw new BookingCannotCompleteException("You cannot complete a session before its end time.");
             if (this.Status == BookingStatus.Completed)
                 return;
             this.Status = BookingStatus.Completed;

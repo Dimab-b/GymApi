@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Gym.Application.Common.Exceptions;
 using Gym.Application.Trainers.Dto_s;
 using MediatR;
 using Microsoft.Extensions.Configuration;
@@ -59,7 +60,7 @@ namespace Gym.Application.Trainers.Queries
             var baseInfo = await multi.ReadFirstOrDefaultAsync<dynamic>();
 
             if (baseInfo == null)
-                throw new KeyNotFoundException($"Trainer with Id {query.Id} not found.");
+                throw new TrainerNotFoundException(query.Id);
 
             var stats = await multi.ReadFirstOrDefaultAsync<TrainerStatsDto>()
                         ?? new TrainerStatsDto(0, 0, 0);

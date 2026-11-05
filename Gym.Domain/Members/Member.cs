@@ -31,7 +31,7 @@ namespace Gym.Domain.Members
         public static Member Create(string name , Email email)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Name must be filled", nameof(name));
+                throw new InvalidMemberNameException();
 
 
             var member = new Member(Guid.NewGuid() , name , email);
@@ -53,10 +53,10 @@ namespace Gym.Domain.Members
         public Subscription PurchaseSubscription(string planCode, decimal pricePerMonth, string currency, int durationMonths, int? visitLimitPerMonth)
         {
             if (durationMonths < 1 || durationMonths > 12)
-                throw new ArgumentException("Duration of subscription must be between 1 and 12 months.", nameof(durationMonths));
+                throw new InvalidSubscriptionDurationException();
 
             if (IsBanned)
-                throw new InvalidOperationException("Banned members cannot purchase subscriptions.");
+                throw new MemberBannedException();
 
             var now = DateTime.UtcNow;
             var startDate = GetNextPeriodStart(now);
@@ -69,7 +69,7 @@ namespace Gym.Domain.Members
                 .Min();
 
             if (endDate > coverageAnchor.AddMonths(12))
-                throw new InvalidOperationException("Total subscription coverage cannot exceed 12 months from the start of the first current or future period.");
+                throw new SubscriptionCoverageExceededException();
 
             var totalPrice = new Price(pricePerMonth * durationMonths, currency);
 
@@ -96,7 +96,7 @@ namespace Gym.Domain.Members
         {
             if (this.IsBanned)
             {
-                throw new InvalidOperationException("Banned members cannot update body-metrics");
+                throw new MemberBannedException();
             }
             BodyMetrics = new BodyMetrics(height, weight, age, goal);
 

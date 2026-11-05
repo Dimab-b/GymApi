@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Gym.Domain.Common.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -11,7 +12,7 @@ namespace Gym.Domain.Common.VO
         public Email(string value)
         {
             if (string.IsNullOrWhiteSpace(value) || !value.Contains("@"))
-                throw new ArgumentException("Invalid email format");
+                throw new InvalidEmailException();
 
             Value = value;
         }

@@ -33,7 +33,7 @@ namespace Gym.Domain.Trainers
         public static Trainer Create(string name, Email email, string specialization, Price sessionPrice)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullException(nameof(name), "Trainer name cannot be empty");
+                throw new InvalidTrainerNameException();
 
             var trainer = new Trainer(Guid.NewGuid(), name, email, specialization, sessionPrice);
 
@@ -45,7 +45,7 @@ namespace Gym.Domain.Trainers
         public void ChangePrice(Price price)
         {
             if (!this.IsActive)
-                throw new ArgumentException("Inactive trainer can't change price");
+                throw new TrainerInactiveException();
             this.SessionPrice = price;
 
             this.AddDomainEvent(new TrainerChangedPriceDomainEvent(this.Id));
@@ -55,7 +55,7 @@ namespace Gym.Domain.Trainers
         public void Deactivate()
         {
             if (this.IsActive == false)
-                throw new InvalidOperationException("Trainer is already inactive");
+                throw new TrainerAlreadyInactiveException();
 
             this.IsActive = false;
 
@@ -66,12 +66,12 @@ namespace Gym.Domain.Trainers
         public void UpdateProfile(string name, string specialization)
         {
             if (!this.IsActive)
-                throw new ArgumentException("Inactive trainer can't change profile");
+                throw new TrainerInactiveException();
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullException(nameof(name), "Trainer name cannot be empty");
+                throw new InvalidTrainerNameException();
 
             if (string.IsNullOrWhiteSpace(specialization))
-                throw new ArgumentNullException(nameof(specialization), "Specialization must be filled");
+                throw new InvalidSpecializationException();
 
 
             this.Name = name;

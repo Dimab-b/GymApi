@@ -1,4 +1,5 @@
-﻿using Gym.Domain.Bookings;
+﻿using Gym.Application.Common.Exceptions;
+using Gym.Domain.Bookings;
 using Gym.Domain.Common;
 using Gym.Domain.Members;
 using Gym.Domain.Trainers;
@@ -29,23 +30,23 @@ namespace Gym.Application.Bookings.Commands
         public async Task<Guid> Handle(CreateBookingCommand command , CancellationToken cancellationToken = default)
         {
             var member = await _memberRepository.GetByIdAsync(command.MemberId , cancellationToken)
-                ?? throw new KeyNotFoundException("Member not found.");
+                ?? throw new MemberNotFoundException(command.MemberId);
             var trainer = await _trainerRepository.GetByIdAsync(command.TrainerId, cancellationToken)
-                ?? throw new KeyNotFoundException("Trainer not found.");
+                ?? throw new TrainerNotFoundException(command.TrainerId);
 
             if (member.IsBanned)
-                throw new InvalidOperationException("Banned members cannot book sessions.");
+                throw new MemberBannedException();
 
             if (!member.HasActiveSubscription())
-                throw new InvalidOperationException("An active subscription is required to book a session.");
+                throw new SubscriptionRequiredException();
 
             if (!trainer.IsActive)
-                throw new InvalidOperationException("Cannot book a session with an inactive trainer.");
+                throw new TrainerInactiveException();
 
             var endTime = command.StartTime.AddHours(1);
             var isOccupied = await _bookingRepository.HasOverlapAsync(command.TrainerId , command.StartTime , endTime);
             if (isOccupied)
-                throw new InvalidOperationException("This time slot is already booked.");
+                throw new BookingSlotTakenException();
 
             var booking = SessionBooking.Create(
                 command.MemberId,

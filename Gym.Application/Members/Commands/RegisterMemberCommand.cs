@@ -1,4 +1,5 @@
-﻿using Gym.Domain.Common;
+﻿using Gym.Application.Common.Exceptions;
+using Gym.Domain.Common;
 using Gym.Domain.Common.VO;
 using Gym.Domain.Members;
 using Gym.Domain.Members.Value_Objects;
@@ -31,7 +32,7 @@ namespace Gym.Application.Members.Commands
 
             var emailExists = await _memberRepository.ExistsByEmailAsync(validEmail , cancellationToken);
             if (emailExists)
-                throw new InvalidOperationException("Member with this email already exists.");
+                throw new DuplicateEmailException();
 
             var newMember = Member.Create(command.Name, validEmail);
 

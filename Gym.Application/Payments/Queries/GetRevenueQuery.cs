@@ -27,12 +27,6 @@ namespace Gym.Application.Payments.Queries
             GetRevenueQuery request,
             CancellationToken cancellationToken = default)
         {
-            if (request.From > request.To)
-                throw new ArgumentException("The start date must be earlier than or equal to the end date.");
-
-            if (request.To == DateOnly.MaxValue)
-                throw new ArgumentException("The end date is out of the supported range.", nameof(request.To));
-
             var fromUtc = request.From.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
             var toExclusiveUtc = request.To.AddDays(1).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 

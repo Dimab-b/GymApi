@@ -1,4 +1,5 @@
-﻿using Gym.Domain.Bookings;
+﻿using Gym.Application.Common.Exceptions;
+using Gym.Domain.Bookings;
 using Gym.Domain.Common;
 using Gym.Domain.Members;
 using Gym.Domain.Payments;
@@ -36,15 +37,29 @@ namespace Gym.Infrastructure.Persistence
             {
                 return await base.SaveChangesAsync(cancellationToken);
             }
-            catch (DbUpdateException ex) when (
-                ex.InnerException is PostgresException pg &&
-                pg.SqlState == PostgresErrorCodes.ExclusionViolation &&
-                pg.TableName == "Subscriptions" &&
-                pg.ConstraintName == "EX_Subscriptions_MemberId_Period")
+            catch (DbUpdateConcurrencyException ex)
             {
-                throw new SubscriptionConflictException(
-                    "A subscription period for this member overlaps an existing period.",
-                    ex);
+                throw new ConcurrencyConflictException(ex);
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is PostgresException pg)
+            {
+                if (pg.SqlState == PostgresErrorCodes.ExclusionViolation &&
+                    pg.TableName == "Subscriptions" &&
+                    pg.ConstraintName == "EX_Subscriptions_MemberId_Period")
+                {
+                    throw new SubscriptionConflictException(
+                        "A subscription period for this member overlaps an existing period.",
+                        ex);
+                }
+
+                if (pg.SqlState == PostgresErrorCodes.UniqueViolation)
+                    throw new DataConflictException(ex);
+
+                if (pg.SqlState == PostgresErrorCodes.SerializationFailure ||
+                    pg.SqlState == PostgresErrorCodes.DeadlockDetected)
+                    throw new TransientDataException(ex);
+
+                throw;
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using Gym.Domain.Bookings;
+﻿using Gym.Application.Common.Exceptions;
+using Gym.Domain.Bookings;
 using Gym.Domain.Common;
 using MediatR;
 using System;
@@ -22,10 +23,10 @@ namespace Gym.Application.Bookings.Commands
         public async Task Handle(CancelBookingCommand command , CancellationToken cancellationToken = default)
         {
             var booking = await _bookingRepository.GetByIdAsync(command.BookingId, cancellationToken)
-                ?? throw new KeyNotFoundException("Booking not found.");
+                ?? throw new BookingNotFoundException(command.BookingId);
 
             if (booking.MemberId != command.MemberId)
-                throw new InvalidOperationException("You cannot cancel another member's booking.");
+                throw new BookingNotOwnedException();
 
             booking.Cancel(command.Reason);
 

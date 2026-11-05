@@ -1,4 +1,5 @@
-﻿using Gym.Application.Common.Interfaces;
+﻿using Gym.Application.Common.Exceptions;
+using Gym.Application.Common.Interfaces;
 using Gym.Application.Members.Dto_s;
 using Gym.Domain.Common;
 using Gym.Domain.Members;
@@ -37,24 +38,15 @@ namespace Gym.Application.Members.Commands
             PurchaseSubscriptionCommand command,
             CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(command.PlanCode))
-                throw new ArgumentException("Plan code must be filled.", nameof(command.PlanCode));
-
-            if (!Enum.IsDefined(command.Method))
-                throw new ArgumentException("Payment method is invalid.", nameof(command.Method));
-
-            if (!Enum.IsDefined(command.Purpose))
-                throw new ArgumentException("Payment purpose is invalid.", nameof(command.Purpose));
-
             var plan = _planProvider.GetByCode(command.PlanCode)
-                ?? throw new InvalidOperationException($"Plan '{command.PlanCode}' is not available.");
+                ?? throw new PlanUnavailableException(command.PlanCode);
 
             return await _uow.ExecuteInTransactionAsync(async ct =>
             {
                 await _memberRepository.LockForPurchaseAsync(command.MemberId, ct);
 
                 var member = await _memberRepository.GetByIdAsync(command.MemberId, ct)
-                    ?? throw new KeyNotFoundException($"Member with ID {command.MemberId} was not found.");
+                    ?? throw new MemberNotFoundException(command.MemberId);
 
                 var subscription = member.PurchaseSubscription(
                     plan.Code,

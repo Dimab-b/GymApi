@@ -26,12 +26,10 @@ namespace Gym.Domain.Payments
             string? note = null)
         {
             if (memberId == Guid.Empty)
-                throw new ArgumentException("Member id must be filled.", nameof(memberId));
+                throw new InvalidPaymentException("Member id must be filled.");
 
             if (subscriptionId == Guid.Empty)
-                throw new ArgumentException(
-                    "Subscription id must be a non-empty value when provided.",
-                    nameof(subscriptionId));
+                throw new InvalidPaymentException("Subscription id must be a non-empty value when provided.");
 
             ArgumentNullException.ThrowIfNull(amount);
 
